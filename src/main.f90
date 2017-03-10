@@ -21,7 +21,7 @@ PROGRAM EntropyStableFD
   INTEGER                   :: ntime
   REAL(kind = dp), ALLOCATABLE    :: xx(:)
   REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:), uold(:)
-  REAL(kind = dp), ALLOCATABLE    :: fplus(:), fminus(:)
+  REAL(kind = dp), ALLOCATABLE    :: fplus(:), fminus(:), KK(:)
   INTEGER                   :: tt, i, j
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp), ALLOCATABLE    :: Kleft, Kright
@@ -31,8 +31,8 @@ PROGRAM EntropyStableFD
   name = 'ouput.dat'
   Tend = 0.5_dp      ! Final Time
   N = 1600          ! Number of nodes
-  CFL = 0.9
-  mu = 0.1
+  CFL = 0.9_dp
+  mu = 0.1_dp
   dx = 4.0_dp/(N-1)
   dt = CFL/(1.0_dp*(1/dx+4*mu/dx**2))
   ntime = floor(tend/dt)  !Number of time steps
@@ -54,9 +54,9 @@ PROGRAM EntropyStableFD
   uleft = 0.0_dp; uright = 0.0_dp
 
   !Engquist-Osher Scheme with forward Euler
-  ALLOCATE(fplus(N), fminus(N), uold(N), uinit(N))
+  ALLOCATE(fplus(N), fminus(N), uold(N), uinit(N), KK(N))
   uinit = 0.0_dp;   fplus = 0.0_dp;   fminus = 0.0_dp
-  uold = 0.0_dp
+  uold = 0.0_dp; KK = 0.0_dp
   uinit = uu
   DO tt = 1,ntime
     uold = uu
@@ -66,19 +66,20 @@ PROGRAM EntropyStableFD
       ELSE
         fplus(j) = 0.0_dp; fminus(j) = Flux(uold(j))
       END IF
+      KK(j) = DiffMat(uold(j))
     END DO
     fplusleft = Flux(uleft); fminusright = Flux(uright)
     Kleft = DiffMat(uleft); Kright = DiffMat(uright)
     j = 1
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) +&
-    dt/dx**2*(DiffMat(uold(j+1)) - 2*DiffMat(uold(j)) + Kleft)
+    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) !+&
+    !dt/dx**2*(DiffMat(uold(j+1)) - 2*DiffMat(uold(j)) + Kleft)
     DO j = 2,(N-1)
       uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplus(j-1)-fminus(j)) +&
-      dt/dx**2*(DiffMat(uold(j+1)) - 2*DiffMat(uold(j)) + DiffMat(uold(j-1)))
+      (dt/dx**2)*(KK(j+1) - 2*KK(j) + KK(j-1))
     END DO
     j = N
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) +&
-    dt/dx**2*(Kright - 2*DiffMat(uold(j)) + DiffMat(uold(j-1)))
+    uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) !+&
+    !dt/dx**2*(Kright - 2*DiffMat(uold(j)) + DiffMat(uold(j-1)))
   END DO
    CALL plot_results(uu, uinit, xx, name)
 CONTAINS
@@ -91,7 +92,7 @@ FUNCTION flux(uu) RESULT(ff)
 END FUNCTION flux
 
 FUNCTION DiffMat(uu) RESULT(kk)
-  !Flux in Burguer's Equation
+  !Conservative diffusion in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
   REAL(kind = dp)              :: kk
   kk = mu*uu**2
