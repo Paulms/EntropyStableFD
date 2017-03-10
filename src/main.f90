@@ -41,14 +41,13 @@ PROGRAM EntropyStableFD
   ALLOCATE(xx(N), uu(N))
   xx = 0.0_dp; uu = 0.0_dp
   xx = (/(i*dx-dx-2,i=1, N)/)      ! Location of grid points
-  uu = xx                          ! Preallocation of solution
 
   ! Initial Conditions
   DO j = 1, N
     IF (xx(j) > -1 .AND. xx(j) < 1) THEN
       uu(j) = (1 - xx(j)**2)**2
     ELSE
-      uu(j) = 0
+      uu(j) = 0.0_dp
     END IF
   END DO
   uleft = 0.0_dp; uright = 0.0_dp
