@@ -30,7 +30,7 @@ PROGRAM EntropyStableFD
   ! Initialize variables
   name = 'ouput.dat'
   Tend = 0.5_dp      ! Final Time
-  N = 1600          ! Number of nodes
+  N = 400          ! Number of nodes
   CFL = 0.9_dp
   mu = 0.1_dp
   dx = 4.0_dp/(N-1)
@@ -70,15 +70,15 @@ PROGRAM EntropyStableFD
     fplusleft = Flux(uleft); fminusright = Flux(uright)
     Kleft = DiffMat(uleft); Kright = DiffMat(uright)
     j = 1
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) !+&
-    !dt/dx**2*(DiffMat(uold(j+1)) - 2*DiffMat(uold(j)) + Kleft)
+    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) +&
+    dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft)
     DO j = 2,(N-1)
       uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplus(j-1)-fminus(j)) +&
-      (dt/dx**2)*(KK(j+1) - 2*KK(j) + KK(j-1))
+      dt/dx*(KK(j+1) - 2*KK(j) + KK(j-1))
     END DO
     j = N
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) !+&
-    !dt/dx**2*(Kright - 2*DiffMat(uold(j)) + DiffMat(uold(j-1)))
+    uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) +&
+    dt/dx**2*(Kright - 2*KK(j) + KK(j-1))
   END DO
    CALL plot_results(uu, uinit, xx, name)
 CONTAINS
