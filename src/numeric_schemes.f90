@@ -48,7 +48,7 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   END DO
 end subroutine Engquist_Osher
 
-subroutine Entropy_Conservative(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
+subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, DiffMat, epsilon)
   INTEGER                   :: time_scheme
   INTEGER                   :: N
   REAL(kind = dp)           :: dx, dt
@@ -56,9 +56,11 @@ subroutine Entropy_Conservative(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat
   REAL(kind = dp), ALLOCATABLE    :: uu(:), uold(:)
   INTEGER                   :: tt, i, j
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright
-  REAL(kind = dp),external        :: Flux, DiffMat
+  REAL(kind = dp), external        :: Flux, DiffMat
   REAL(kind = dp), ALLOCATABLE    :: KK(:)
   REAL(kind = dp), ALLOCATABLE    :: Kleft, Kright
+  LOGICAL                         :: Extra_Viscosity
+  REAL(kind = dp)                 :: epsilon
   
   uleft = uu(1); uright = uu(N)
   Kleft = DiffMat(uleft); Kright = DiffMat(uright)
@@ -73,19 +75,22 @@ subroutine Entropy_Conservative(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat
     IF (time_scheme == FORWARD_EULER) THEN
       j = 1
       uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
-      dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft)
+      dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft) +&
+      epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uleft,0.0_dp,Extra_Viscosity)
       DO j = 2,(N-1)
         uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uold(j-1), uold(j))) +&
-        dt/dx**2*(KK(j+1) - 2*KK(j) + KK(j-1))
+        dt/dx**2*(KK(j+1) - 2*KK(j) + KK(j-1))+&
+      epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0._dp,Extra_Viscosity)
       END DO
       j = N
       uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
-      dt/dx**2*(Kright - 2*KK(j) + KK(j-1))
+      dt/dx**2*(Kright - 2*KK(j) + KK(j-1))+&
+      epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
     END IF
   END DO
 end subroutine Entropy_Conservative
 
-subroutine Entropy_NonConservative(time_scheme, uu, N, ntime, dx, dt, Flux, KK)
+subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, KK, epsilon)
   INTEGER                   :: time_scheme
   INTEGER                   :: N
   REAL(kind = dp)           :: dx, dt
@@ -94,6 +99,8 @@ subroutine Entropy_NonConservative(time_scheme, uu, N, ntime, dx, dt, Flux, KK)
   INTEGER                   :: tt, i, j
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright
   REAL(kind = dp),external        :: Flux, KK
+  LOGICAL                         :: Extra_Viscosity
+  REAL(kind = dp)                 :: epsilon
   
   uleft = uu(1); uright = uu(N)
   ALLOCATE(uold(N))
@@ -104,14 +111,17 @@ subroutine Entropy_NonConservative(time_scheme, uu, N, ntime, dx, dt, Flux, KK)
     IF (time_scheme == FORWARD_EULER) THEN
       j = 1
       uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
-      dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uleft,uold(j))*(uold(j)-uleft))
+      dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uleft,uold(j))*(uold(j)-uleft)) +&
+      epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uleft,0.0_dp,Extra_Viscosity)
       DO j = 2,(N-1)
         uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uold(j-1), uold(j))) +&
-        dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))
+        dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))+&
+        epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0._dp,Extra_Viscosity)
       END DO
       j = N
       uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
-      dt/dx**2*(KK(uold(j),uright)*(uright-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))
+      dt/dx**2*(KK(uold(j),uright)*(uright-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))+&
+      epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
     END IF
   END DO
 end subroutine Entropy_NonConservative
