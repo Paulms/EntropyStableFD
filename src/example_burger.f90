@@ -1,5 +1,8 @@
-! Example 1
+! Test Problem 1
 ! Burgers Equation
+! u_t + (u^2/2)_x=K(u)_xx   (x,t) in [-2,2]x[0,T]
+! where
+! K(u) = mu*u^2
 MODULE example_burger
 USE decimal
 USE plot
@@ -64,7 +67,9 @@ subroutine burger_runexample(initial_condition)
 
   !Engquist-Osher Scheme with forward Euler
   name = 'output'
-  CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)
+  !CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
+  !CALL Entropy_Conservative(FORWARD_EULER, uu, N, ntime, dx, dt, fluxEC, DiffMat) !ESC
+  CALL Entropy_NonConservative(FORWARD_EULER, uu, N, ntime, dx, dt, fluxEC, KKN) !ESNC
   CALL plot_results(uu, uinit, xx, name)
 end subroutine burger_runexample
 
@@ -81,4 +86,25 @@ FUNCTION DiffMat(uu) RESULT(kk)
   REAL(kind = dp)              :: kk
   kk = mu*uu**2
 END FUNCTION DiffMat
+
+FUNCTION fluxEC(ul, ur) RESULT(ff)
+  !Entropy conservative flux
+  REAL(kind = dp), INTENT(IN)  :: ul
+  REAL(kind = dp), INTENT(IN)  :: ur
+  REAL(kind = dp)              :: ff
+  ff = 1/6.0*(ur**2+ur*ul+ul**2)
+END FUNCTION fluxEC
+
+FUNCTION KKN(ul, ur) RESULT(kk)
+  !Numerical viscosity matrix
+  REAL(kind = dp), INTENT(IN)  :: ul
+  REAL(kind = dp), INTENT(IN)  :: ur
+  REAL(kind = dp)              :: kk
+  If (ul == 0 .AND. ur ==0) THEN
+    kk = 0
+  ELSE
+    kk = mu*4/3*(ul**2+ul*ur+ur**2)/(ul+ur)
+  END IF
+END FUNCTION KKN
+
 END MODULE example_burger
