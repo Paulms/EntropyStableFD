@@ -29,10 +29,10 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
       ELSE
         fplus(j) = 0.0_dp; fminus(j) = Flux(uold(j))
       END IF
-      KK(j) = DiffMat(uold(j), mu)
+      KK(j) = DiffMat(uold(j))
     END DO
     fplusleft = Flux(uleft); fminusright = Flux(uright)
-    Kleft = DiffMat(uleft, mu); Kright = DiffMat(uright, mu)
+    Kleft = DiffMat(uleft); Kright = DiffMat(uright)
 
     !Engquist-Osher Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN

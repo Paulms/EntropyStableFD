@@ -1,9 +1,12 @@
+! Example 1
+! Burgers Equation
 MODULE example_burger
 USE decimal
 USE plot
 USE tipos
 USE numeric_schemes
 IMPLICIT NONE
+REAL(kind = dp), PARAMETER :: mu = 0.01
 CONTAINS
 subroutine burger_runexample(initial_condition)
   INTEGER                   :: initial_condition
@@ -12,12 +15,11 @@ subroutine burger_runexample(initial_condition)
   REAL(kind = dp)           :: dx
   REAL(kind = dp)           :: CFL
   REAL(kind = dp)           :: dt
-  REAL(kind = dp)           :: mu
   INTEGER                   :: ntime
   REAL(kind = dp), ALLOCATABLE    :: xx(:)
   REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:), uold(:)
   REAL(kind = dp), ALLOCATABLE    :: fplus(:), fminus(:), KK(:)
-  INTEGER                   :: tt, i, j
+  INTEGER                         :: tt, i, j
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp), ALLOCATABLE    :: Kleft, Kright
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
@@ -26,7 +28,6 @@ subroutine burger_runexample(initial_condition)
   Tend = 0.5_dp      ! Final Time
   N = 400          ! Number of nodes
   CFL = 0.9_dp
-  mu = 0.01
   dx = 4.0_dp/(N-1)
   dt = CFL/(1.0_dp*(1/dx+4*mu/dx**2))
   ntime = floor(tend/dt)  !Number of time steps
@@ -74,11 +75,10 @@ FUNCTION flux(uu) RESULT(ff)
   ff = 0.5*uu**2
 END FUNCTION flux
 
-FUNCTION DiffMat(uu, mu) RESULT(kk)
+FUNCTION DiffMat(uu) RESULT(kk)
   !Conservative diffusion in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
   REAL(kind = dp)              :: kk
-  REAL(kind = dp), INTENT(IN)  :: mu
   kk = mu*uu**2
 END FUNCTION DiffMat
 END MODULE example_burger
