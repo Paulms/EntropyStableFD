@@ -8,6 +8,23 @@ MODULE plot
   USE util
   IMPLICIT NONE
 CONTAINS
+  SUBROUTINE save_matrix(data, names, name)
+    ! Save data matrix in file
+    CHARACTER(LEN=32)             :: name
+    CHARACTER(LEN=5)              :: names(:)
+    REAL(kind=dp)                 :: data(:,:)
+    CHARACTER(LEN=32)             :: name_dat
+    INTEGER                       :: iunit1, N, i
+    name_dat = TRIM(ADJUSTL(name))//".txt"
+    CALL util_get_unit(iunit1)
+    N = size(data,1)
+    OPEN(iunit1,file=name_dat,   status='replace', action='write')
+      WRITE(iunit1,*) names
+      DO i = 1,N
+        WRITE(iunit1,*) data(i,:)
+      END DO
+    CLOSE(iunit1)
+  END SUBROUTINE  
   SUBROUTINE plot_results(uu, uinit, xx, name)
     !
     ! Subrutina que genera archivos para la visualizacion

@@ -18,7 +18,7 @@ subroutine burger_runexample(initial_condition)
   REAL(kind = dp)           :: dx
   REAL(kind = dp)           :: CFL
   REAL(kind = dp)           :: dt
-  INTEGER                   :: ntime
+  INTEGER                   :: ntime, ntests
   REAL(kind = dp), ALLOCATABLE    :: xx(:)
   REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:), uold(:)
   REAL(kind = dp), ALLOCATABLE    :: fplus(:), fminus(:), KK(:)
@@ -26,6 +26,8 @@ subroutine burger_runexample(initial_condition)
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp), ALLOCATABLE    :: Kleft, Kright
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
+  REAL(kind = dp), ALLOCATABLE    :: results(:,:)
+  CHARACTER(LEN=5), ALLOCATABLE  :: names(:)
 
   ! Initialize variables
   Tend = 0.5_dp      ! Final Time
@@ -65,16 +67,30 @@ subroutine burger_runexample(initial_condition)
   uinit = 0.0_dp;   
   uinit = uu
 
-  !Engquist-Osher Scheme with forward Euler
+  !Run numerical schemes
   name = 'output'
-  !CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
-  !CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
-  !CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
+  ntests = 5
+  ALLOCATE(results(N, ntests+1), names(ntests+1))
+  names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
+  results(:,1) = xx
+  CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
+  results(:,2) = uu
+  uu = uinit
+  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+  results(:,3) = uu
+  uu = uinit
+  CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
+  results(:,4) = uu
+  uu = uinit
   !CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, DiffMat, dx*0.1)  !ESC-alpha
   !CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, KKN, dx*0.1) !ESNC-alpha
-  !CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
+  CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
+  results(:,5) = uu
+  uu = uinit
   CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
-  CALL plot_results(uu, uinit, xx, name)
+  results(:,6) = uu
+  CALL save_matrix(results, names, name)
+  !CALL plot_results(uu, uinit, xx, name)
 end subroutine burger_runexample
 
 FUNCTION flux(uu) RESULT(ff)
