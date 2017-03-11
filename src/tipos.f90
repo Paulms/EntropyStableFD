@@ -1,7 +1,7 @@
 MODULE tipos
 IMPLICIT NONE
   ENUM, bind(c)
-        ENUMERATOR :: RK2
+        ENUMERATOR :: TVD_RK2
         ENUMERATOR :: FORWARD_EULER
   END ENUM
 END MODULE tipos

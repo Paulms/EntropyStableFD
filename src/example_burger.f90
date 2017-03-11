@@ -68,10 +68,12 @@ subroutine burger_runexample(initial_condition)
   !Engquist-Osher Scheme with forward Euler
   name = 'output'
   !CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
-  !CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0) !ESC
-  !CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0) !ESNC
+  !CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+  !CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
   !CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, DiffMat, dx*0.1)  !ESC-alpha
-  CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, KKN, dx*0.1) !ESNC-alpha
+  !CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, KKN, dx*0.1) !ESNC-alpha
+  !CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
+  CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
   CALL plot_results(uu, uinit, xx, name)
 end subroutine burger_runexample
 
