@@ -28,14 +28,15 @@ subroutine burger_runexample(initial_condition)
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
   REAL(kind = dp), ALLOCATABLE    :: results(:,:)
   CHARACTER(LEN=5), ALLOCATABLE  :: names(:)
-
+  ! Zero variables
+  Tend = 0.0_dp; error = 0.0_dp; dt = 0.0_dp; dx = 0.0_dp; CFL = 0.0_dp
   ! Initialize variables
   Tend = 0.5_dp      ! Final Time
   CFL = 0.9_dp
 
   !Save reference solution (Change binary flag if needed)
-  IF (.TRUE.) THEN
-    name = 'burger_1_reference'
+  IF (.FALSE.) THEN
+    name = 'burger_2_reference'
     N = 16000          ! Number of nodes
     CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
     ntests = 1
@@ -50,14 +51,14 @@ subroutine burger_runexample(initial_condition)
   END IF
 
   !Compute errors (Change binary flag if needed)
-  IF (.FALSE.) THEN
-    name = 'burger_1_reference'
+  IF (.TRUE.) THEN
+    name = 'burger_2_reference'
     ALLOCATE(steps(5))
     steps = [200,400,800,1600,3200]
     !Read reference solution
-    CALL read_matrix(name , reference, 3200, 2)
+    CALL read_matrix(name , reference, 16000, 2)
     ! Prepare to save matrix
-    name = 'burger_1_errors'
+    name = 'burger_2_errors'
     ntests = 5
 
     ALLOCATE(results(5, ntests+1), names(ntests+1))
@@ -71,19 +72,19 @@ subroutine burger_runexample(initial_condition)
       CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
       error = cumpute_errors(reference, xx, uu, dx, N)
       results(i,2) = error
-      uu = uinit
+      uu = uinit; error = 0.0_dp
       CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
       error = cumpute_errors(reference, xx, uu, dx, N)
       results(i,3) = error
-      uu = uinit
+      uu = uinit; error = 0.0_dp
       CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
       error = cumpute_errors(reference, xx, uu, dx, N)
       results(i,4) = error
-      uu = uinit
+      uu = uinit; error = 0.0_dp
       CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
       error = cumpute_errors(reference, xx, uu, dx, N)
       results(i,5) = error
-      uu = uinit
+      uu = uinit; error = 0.0_dp
       CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
       error = cumpute_errors(reference, xx, uu, dx, N)
       results(i,6) = error
@@ -97,7 +98,7 @@ subroutine burger_runexample(initial_condition)
   !Run numerical schemes
   N = 200          ! Number of nodes
   CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
-  name = 'burger_1_3200'
+  name = 'burger_1_200'
   ntests = 5
   ALLOCATE(results(N, ntests+1), names(ntests+1))
   names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
