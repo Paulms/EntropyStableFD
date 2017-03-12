@@ -9,18 +9,20 @@ USE plot
 USE tipos
 USE numeric_schemes
 IMPLICIT NONE
-REAL(kind = dp), PARAMETER :: mu = 0.01
+PUBLIC burger_runexample
+PRIVATE
+REAL(kind = dp), PARAMETER :: mu = 0.01_dp
 CONTAINS
 subroutine burger_runexample(initial_condition)
   INTEGER                   :: initial_condition
   REAL(kind = dp)           :: Tend
   INTEGER                   :: N
-  REAL(kind = dp)           :: dx
+  REAL(kind = dp)           :: dx, error
   REAL(kind = dp)           :: CFL
   REAL(kind = dp)           :: dt
   INTEGER                   :: ntime, ntests
-  REAL(kind = dp), ALLOCATABLE    :: xx(:)
-  REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:)
+  REAL(kind = dp), ALLOCATABLE    :: xx(:), steps(:)
+  REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:), reference(:,:)
   INTEGER                         :: tt, i, j
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
   REAL(kind = dp), ALLOCATABLE    :: results(:,:)
@@ -28,8 +30,105 @@ subroutine burger_runexample(initial_condition)
 
   ! Initialize variables
   Tend = 0.5_dp      ! Final Time
-  N = 16000          ! Number of nodes
   CFL = 0.9_dp
+
+  !Save reference solution (Change binary flag if needed)
+  IF (.FALSE.) THEN
+    name = 'burger_1_reference'
+    N = 16000          ! Number of nodes
+    CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
+    ntests = 1
+    ALLOCATE(results(N, ntests+1), names(ntests+1))
+    names = ['x    ', 'REF  ']
+    results(:,1) = xx
+    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+    results(:,2) = uu
+    uu = uinit
+    CALL save_matrix(results, names, name)
+    DEALLOCATE(results, uu, names, uinit, xx)
+    STOP
+  END IF
+
+  !Compute errors (Change binary flag if needed)
+  IF (.TRUE.) THEN
+    name = 'burger_1_reference'
+    ALLOCATE(steps(5))
+    steps = [200,400,800,1600,3200]
+    !Read reference solution
+    CALL read_matrix(name , reference, 16000, 2)
+    ! Prepare to save matrix
+    name = 'burger_1_errors'
+    ntests = 5
+    ALLOCATE(results(5, ntests+1), names(ntests+1))
+    results = 0.0_dp
+    names = ['N    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
+    results(:,1) = steps
+    DO i = 1, 5
+      N = steps(i)
+      print *, "Starting numerical tests with N = ", N
+      CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
+      CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
+      error = cumpute_errors(reference, xx, uu, dx, N)
+      results(i,2) = error
+      uu = uinit
+      CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+      results(i,3) = error
+      uu = uinit
+      CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
+      results(i,4) = error
+      uu = uinit
+      CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
+      results(i,5) = error
+      uu = uinit
+      CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
+      results(i,6) = error
+      DEALLOCATE(uu, uinit, xx)
+    END DO
+    CALL save_matrix(results, names, name)
+    DEALLOCATE(results, names)
+    STOP
+  END IF
+
+  !Run numerical schemes
+  N = 16000          ! Number of nodes
+  CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
+  name = 'burger_1_200'
+  ntests = 5
+  ALLOCATE(results(N, ntests+1), names(ntests+1))
+  names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
+  results(:,1) = xx
+  CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
+  results(:,2) = uu
+  uu = uinit
+  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+  results(:,3) = uu
+  uu = uinit
+  CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
+  results(:,4) = uu
+  uu = uinit
+  !CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, DiffMat, dx*0.1)  !ESC-alpha
+  !CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, KKN, dx*0.1) !ESNC-alpha
+  CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
+  results(:,5) = uu
+  uu = uinit
+  CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
+  results(:,6) = uu
+  CALL save_matrix(results, names, name)
+  !CALL plot_results(uu, uinit, xx, name)
+  ! Clean memory
+  DEALLOCATE(results, uu, names, uinit, xx)
+end subroutine burger_runexample
+
+SUBROUTINE setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
+  INTEGER, INTENT(IN)             :: initial_condition
+  REAL(kind = dp), INTENT(IN)     :: Tend
+  INTEGER, INTENT(IN)             :: N
+  REAL(kind = dp), INTENT(IN)     :: CFL
+  REAL(kind = dp)                 :: dt, dx
+  INTEGER                         :: ntime
+  REAL(kind = dp), ALLOCATABLE    :: xx(:)
+  REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:)
+  INTEGER                         :: i, j
   dx = 4.0_dp/(N-1)
   dt = CFL/(1.0_dp*(1/dx+4*mu/dx**2))
   ntime = floor(tend/dt)  !Number of time steps
@@ -59,54 +158,30 @@ subroutine burger_runexample(initial_condition)
   else
     uu = 0.0_dp
   END IF
-
   !Save initial condition
   ALLOCATE(uinit(N))
   uinit = 0.0_dp;   
   uinit = uu
+END SUBROUTINE   
 
-  !Save reference solution (Change binary flag if needed)
-  IF (.TRUE.) THEN
-    name = 'burger_1_reference'
-    ntests = 1
-    ALLOCATE(results(N, ntests+1), names(ntests+1))
-    names = ['x    ', 'REF  ']
-    results(:,1) = xx
-    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
-    results(:,2) = uu
-    uu = uinit
-    CALL save_matrix(results, names, name)
-    DEALLOCATE(results, uu, names, uinit, xx)
-    STOP
-  END IF
-
-  !Run numerical schemes
-  name = 'burger_1_200'
-  ntests = 5
-  ALLOCATE(results(N, ntests+1), names(ntests+1))
-  names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
-  results(:,1) = xx
-  CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
-  results(:,2) = uu
-  uu = uinit
-  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
-  results(:,3) = uu
-  uu = uinit
-  CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
-  results(:,4) = uu
-  uu = uinit
-  !CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, DiffMat, dx*0.1)  !ESC-alpha
-  !CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, ntime, dx, dt, fluxEC, KKN, dx*0.1) !ESNC-alpha
-  CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
-  results(:,5) = uu
-  uu = uinit
-  CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
-  results(:,6) = uu
-  CALL save_matrix(results, names, name)
-  !CALL plot_results(uu, uinit, xx, name)
-  ! Clean memory
-  DEALLOCATE(results, uu, names, uinit, xx)
-end subroutine burger_runexample
+FUNCTION cumpute_errors(reference, xx, uu, dx, N) RESULT(error)
+  ! Compute errors in L1 norm
+  INTEGER, INTENT(IN)          :: N
+  REAL(kind = dp), INTENT(IN)  :: reference(:,:), uu(:), xx(:), dx
+  REAL(kind=dp), ALLOCATABLE   :: uexact(:)
+  REAL(kind = dp)              :: error, dxr
+  INTEGER                      :: i, j
+  ! Compute exact values
+  ALLOCATE(uexact(N))
+  uexact = 0.0_dp
+  dxr = reference(2,1) - reference(1,1)
+  DO i = 1, N
+    j = NINT((xx(i) - reference(1,1))/dxr)+1
+    uexact(i) = reference(j,2)
+  END DO
+  error = dx*sum(abs(uu - uexact))
+  DEALLOCATE(uexact)
+END FUNCTION cumpute_errors
 
 FUNCTION flux(uu) RESULT(ff)
   !Flux in Burguer's Equation

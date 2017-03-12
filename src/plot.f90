@@ -24,7 +24,28 @@ CONTAINS
         WRITE(iunit1,*) data(i,:)
       END DO
     CLOSE(iunit1)
-  END SUBROUTINE  
+  END SUBROUTINE
+
+  SUBROUTINE read_matrix(name, data, rows, cols)
+    ! Read data matrix in file
+    CHARACTER(LEN=32)             :: name
+    CHARACTER(LEN=5), ALLOCATABLE :: names(:)
+    REAL(kind=dp), ALLOCATABLE    :: data(:,:)
+    CHARACTER(LEN=32)             :: name_dat
+    INTEGER                       :: iunit1, rows, cols, i
+    name_dat = TRIM(ADJUSTL(name))//".txt"
+    CALL util_get_unit(iunit1)
+    ALLOCATE(data(rows, cols), names(cols))
+    data = 0.0_dp
+    OPEN(iunit1,file=name_dat,   status='old', action='read')
+      READ(iunit1,*) names
+      DO i = 1,rows
+        READ(iunit1,*) data(i,:)
+      END DO
+    CLOSE(iunit1)
+    DEALLOCATE(names)
+  END SUBROUTINE 
+
   SUBROUTINE plot_results(uu, uinit, xx, name)
     !
     ! Subrutina que genera archivos para la visualizacion
