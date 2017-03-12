@@ -5,8 +5,8 @@ IMPLICIT NONE
 CONTAINS
 subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   INTEGER                   :: time_scheme
-  INTEGER                   :: N
-  REAL(kind = dp)           :: dx, dt
+  INTEGER                   :: N, percentage
+  REAL(kind = dp)           :: dx, dt, limit
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:), fplus(:), fminus(:), KK(:)
@@ -14,11 +14,13 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp),external        :: Flux, DiffMat
   REAL(kind = dp)                 :: Kleft, Kright
-  
+  percentage = 0
+  limit = ntime/5
   uleft = uu(1); uright = uu(N)
   ALLOCATE(fplus(N), fminus(N), uold(N), KK(N), utemp(N), utemp2(N))
   fplus = 0.0_dp;   fminus = 0.0_dp
   uold = 0.0_dp; KK = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
+  Print *, "Starting computing with monotone scheme"
   DO tt = 1,ntime
     uold = uu
     fplusleft = Flux(uleft); fminusright = Flux(uright)
@@ -36,7 +38,14 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
       CALL update_u_EO(utemp2, utemp, N, dx, dt, fplus, fminus, fplusleft, fminusright, KK, Kleft, Kright)
       uu = 0.5*(uold + utemp2)
     END IF
+    !Print progress
+    IF (tt > limit) THEN
+      percentage = percentage + 20
+      limit = limit + ntime/5
+      print *, percentage, "% completed"
+    END IF
   END DO
+  print *, "completed..."
   DEALLOCATE(fplus, fminus, uold, KK, utemp, utemp2)
 end subroutine Engquist_Osher
 
@@ -74,8 +83,8 @@ end subroutine update_u_EO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Entropy Stable Scheme, conservative diffusion
 subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, DiffMat, epsilon)
   INTEGER                   :: time_scheme
-  INTEGER                   :: N
-  REAL(kind = dp)           :: dx, dt
+  INTEGER                   :: N, percentage
+  REAL(kind = dp)           :: dx, dt, limit
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
   INTEGER                   :: tt, i, j
@@ -85,12 +94,14 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, 
   REAL(kind = dp)                 :: Kleft, Kright
   LOGICAL                         :: Extra_Viscosity
   REAL(kind = dp)                 :: epsilon
-  
+  percentage = 0
+  limit = ntime/5
   uleft = uu(1); uright = uu(N)
   Kleft = DiffMat(uleft); Kright = DiffMat(uright)
   ALLOCATE(uold(N), KK(N), utemp(N), utemp2(N))
   uold = 0.0_dp; KK = 0.0_dp
   utemp = 0.0_dp; utemp2 = 0.0_dp
+  Print *, "Starting computing with Entropy Stable scheme (conservative diffusion)"
   DO tt = 1,ntime
     uold = uu
     DO j = 1,N
@@ -110,7 +121,14 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, 
       CALL update_u_EC(utemp2, utemp, N, dx, dt, KK, Kleft, Kright, uleft, uright, Extra_Viscosity, epsilon, Flux)
       uu = 0.5*(uold + utemp2)
     END IF
+    !Print progress
+    IF (tt > limit) THEN
+      percentage = percentage + 20
+      limit = limit + ntime/5
+      print *, percentage, "% completed"
+    END IF
   END DO
+  print *, "completed..."
   DEALLOCATE(uold, KK, utemp, utemp2)
 end subroutine Entropy_Conservative
 
@@ -139,8 +157,8 @@ end subroutine update_u_EC
 !!!!!!!!!!!!!!!!!!!!!!!!!11 Entropy Stable Scheme, non conservative Diffusion
 subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, KK, epsilon)
   INTEGER                   :: time_scheme
-  INTEGER                   :: N
-  REAL(kind = dp)           :: dx, dt
+  INTEGER                   :: N, percentage
+  REAL(kind = dp)           :: dx, dt, limit
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
@@ -149,10 +167,12 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, d
   REAL(kind = dp),external        :: Flux, KK
   LOGICAL                         :: Extra_Viscosity
   REAL(kind = dp)                 :: epsilon
-  
+  percentage = 0
+  limit = ntime/5
   uleft = uu(1); uright = uu(N)
   ALLOCATE(uold(N), utemp(N), utemp2(N))
   uold = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
+  Print *, "Starting computing with Entropy Stable scheme (non-conservative diffusion)"
   DO tt = 1,ntime
     uold = uu
     !Scheme with forward Euler
@@ -166,7 +186,14 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, d
       CALL update_u_NC(utemp2, utemp, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
       uu = 0.5*(uold + utemp2)
     END IF
+    !Print progress
+    IF (tt > limit) THEN
+      percentage = percentage + 20
+      limit = limit + ntime/5
+      print *, percentage, "% completed"
+    END IF
   END DO
+  print *, "completed..."
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_NonConservative
 

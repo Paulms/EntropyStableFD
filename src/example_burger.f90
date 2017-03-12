@@ -20,18 +20,15 @@ subroutine burger_runexample(initial_condition)
   REAL(kind = dp)           :: dt
   INTEGER                   :: ntime, ntests
   REAL(kind = dp), ALLOCATABLE    :: xx(:)
-  REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:), uold(:)
-  REAL(kind = dp), ALLOCATABLE    :: fplus(:), fminus(:), KK(:)
+  REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:)
   INTEGER                         :: tt, i, j
-  REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
-  REAL(kind = dp), ALLOCATABLE    :: Kleft, Kright
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
   REAL(kind = dp), ALLOCATABLE    :: results(:,:)
   CHARACTER(LEN=5), ALLOCATABLE  :: names(:)
 
   ! Initialize variables
   Tend = 0.5_dp      ! Final Time
-  N = 400          ! Number of nodes
+  N = 16000          ! Number of nodes
   CFL = 0.9_dp
   dx = 4.0_dp/(N-1)
   dt = CFL/(1.0_dp*(1/dx+4*mu/dx**2))
@@ -62,13 +59,29 @@ subroutine burger_runexample(initial_condition)
   else
     uu = 0.0_dp
   END IF
+
   !Save initial condition
   ALLOCATE(uinit(N))
   uinit = 0.0_dp;   
   uinit = uu
 
+  !Save reference solution (Change binary flag if needed)
+  IF (.TRUE.) THEN
+    name = 'burger_1_reference'
+    ntests = 1
+    ALLOCATE(results(N, ntests+1), names(ntests+1))
+    names = ['x    ', 'REF  ']
+    results(:,1) = xx
+    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
+    results(:,2) = uu
+    uu = uinit
+    CALL save_matrix(results, names, name)
+    DEALLOCATE(results, uu, names, uinit, xx)
+    STOP
+  END IF
+
   !Run numerical schemes
-  name = 'output'
+  name = 'burger_1_200'
   ntests = 5
   ALLOCATE(results(N, ntests+1), names(ntests+1))
   names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
@@ -91,6 +104,8 @@ subroutine burger_runexample(initial_condition)
   results(:,6) = uu
   CALL save_matrix(results, names, name)
   !CALL plot_results(uu, uinit, xx, name)
+  ! Clean memory
+  DEALLOCATE(results, uu, names, uinit, xx)
 end subroutine burger_runexample
 
 FUNCTION flux(uu) RESULT(ff)
