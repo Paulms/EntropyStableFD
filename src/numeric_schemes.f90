@@ -10,7 +10,7 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:), fplus(:), fminus(:), KK(:)
-  INTEGER                   :: tt, i, j
+  INTEGER                   :: tt
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp),external        :: Flux, DiffMat
   REAL(kind = dp)                 :: Kleft, Kright
@@ -20,11 +20,11 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   ALLOCATE(fplus(N), fminus(N), uold(N), KK(N), utemp(N), utemp2(N))
   fplus = 0.0_dp;   fminus = 0.0_dp
   uold = 0.0_dp; KK = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
+  fplusleft = Flux(uleft); fminusright = Flux(uright)
+  Kleft = DiffMat(uleft); Kright = DiffMat(uright)
   Print *, "Starting computing with monotone scheme"
   DO tt = 1,ntime
     uold = uu
-    fplusleft = Flux(uleft); fminusright = Flux(uright)
-    Kleft = DiffMat(uleft); Kright = DiffMat(uright)
     CALL Compute_fluxes_EO(uold, N, fplus, fminus, KK, Flux, DiffMat)
     !Engquist-Osher Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
@@ -55,7 +55,7 @@ subroutine Compute_fluxes_EO(uold, N, fplus, fminus, KK, Flux, DiffMat)
   INTEGER                         :: j, N
   REAL(kind = dp),external        :: Flux, DiffMat
   DO j = 1,N
-    IF (uold(j) > 0) THEN
+    IF (uold(j) > 0.0_dp) THEN
       fplus(j) = Flux(uold(j)); fminus(j) = 0.0_dp
     ELSE
       fplus(j) = 0.0_dp; fminus(j) = Flux(uold(j))
@@ -87,7 +87,7 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, 
   REAL(kind = dp)           :: dx, dt, limit
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
-  INTEGER                   :: tt, i, j
+  INTEGER                   :: tt, j
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp), external        :: Flux, DiffMat
   REAL(kind = dp), ALLOCATABLE    :: uold(:), KK(:), utemp(:), utemp2(:)
@@ -162,7 +162,7 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, d
   INTEGER                   :: ntime
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
-  INTEGER                   :: tt, i, j
+  INTEGER                   :: tt
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp),external        :: Flux, KK
   LOGICAL                         :: Extra_Viscosity
