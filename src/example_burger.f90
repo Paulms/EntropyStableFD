@@ -36,7 +36,7 @@ subroutine burger_runexample(initial_condition)
 
   !Save reference solution (Change binary flag if needed)
   IF (.FALSE.) THEN
-    name = 'burger_2_reference'
+    name = 'burger_1_reference'
     N = 16000          ! Number of nodes
     CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
     ntests = 1
@@ -52,13 +52,13 @@ subroutine burger_runexample(initial_condition)
 
   !Compute errors (Change binary flag if needed)
   IF (.TRUE.) THEN
-    name = 'burger_2_reference'
+    name = 'burger_1_reference'
     ALLOCATE(steps(5))
     steps = [200,400,800,1600,3200]
     !Read reference solution
     CALL read_matrix(name , reference, 16000, 2)
     ! Prepare to save matrix
-    name = 'burger_2_errors'
+    name = 'burger_1_errors'
     ntests = 5
 
     ALLOCATE(results(5, ntests+1), names(ntests+1))
@@ -182,8 +182,12 @@ FUNCTION cumpute_errors(reference, xx, uu, dx, N) RESULT(error)
   uexact = 0.0_dp
   dxr = reference(2,1) - reference(1,1)
   DO i = 1, N
-    j = NINT((xx(i) - reference(1,1))/dxr)+1
-    uexact(i) = reference(j,2)
+    j = FLOOR((xx(i) - reference(1,1))/dxr)+1
+    if (j < size(reference,1)) THEN
+      uexact(i) = reference(j,2) + (xx(i) - reference(j,1))*(reference(j+1,2)-reference(j,2))/dxr
+    ELSE
+      uexact(i) = reference(j,2)
+    end if
   END DO
   error = sum(dx*abs(uu - uexact))
   print *, "Error: ", error

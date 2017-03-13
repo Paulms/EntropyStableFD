@@ -147,7 +147,7 @@ subroutine update_u_EC(uu, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Ex
     DO j = 2,(N-1)
       uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uold(j-1), uold(j))) +&
       dt/dx**2*(KK(j+1) - 2*KK(j) + KK(j-1))+&
-    epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0._dp,Extra_Viscosity)
+    epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
     END DO
     j = N
     uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&

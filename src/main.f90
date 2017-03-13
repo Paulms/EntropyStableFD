@@ -11,6 +11,6 @@ PROGRAM EntropyStableFD
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   USE example_burger
   IMPLICIT NONE
-  CALL burger_runexample(2)
+  CALL burger_runexample(1)
 
 END PROGRAM EntropyStableFD
