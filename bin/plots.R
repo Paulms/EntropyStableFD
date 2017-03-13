@@ -32,7 +32,7 @@ errores
 Order = log2(errores[1:4,]/errores[2:5,])
 Order
 
-errores = import('burger_2_errors.txt')
+  errores = import('burger_2_errors.txt')
 errores
 Order = log2(errores[1:4,]/errores[2:5,])
 Order
