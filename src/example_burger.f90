@@ -16,7 +16,7 @@ CONTAINS
 subroutine burger_runexample(initial_condition)
   INTEGER                   :: initial_condition
   REAL(kind = dp)           :: Tend
-  INTEGER                   :: N
+  INTEGER                   :: N, M
   REAL(kind = dp)           :: dx, error
   REAL(kind = dp)           :: CFL
   REAL(kind = dp)           :: dt
@@ -33,11 +33,12 @@ subroutine burger_runexample(initial_condition)
   ! Initialize variables
   Tend = 0.5_dp      ! Final Time
   CFL = 0.9_dp
+  M = 16000
 
   !Save reference solution (Change binary flag if needed)
   IF (.FALSE.) THEN
     name = 'burger_1_reference'
-    N = 16000          ! Number of nodes
+    N = M          ! Number of nodes
     CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
     ntests = 1
     ALLOCATE(results(N, ntests+1), names(ntests+1))
@@ -70,23 +71,23 @@ subroutine burger_runexample(initial_condition)
       print *, "Starting numerical tests with N = ", N
       CALL setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_condition)
       CALL Engquist_Osher(FORWARD_EULER, uu, N, ntime, dx, dt, flux, DiffMat)  !MS
-      error = cumpute_errors(reference, xx, uu, dx, N)
+      error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,2) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC
-      error = cumpute_errors(reference, xx, uu, dx, N)
+      error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,3) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC
-      error = cumpute_errors(reference, xx, uu, dx, N)
+      error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,4) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, DiffMat, 0.0_dp) !ESC2
-      error = cumpute_errors(reference, xx, uu, dx, N)
+      error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,5) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, ntime, dx, dt, fluxEC, KKN, 0.0_dp) !ESNC2
-      error = cumpute_errors(reference, xx, uu, dx, N)
+      error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,6) = error
       DEALLOCATE(uu, uinit, xx)
     END DO
@@ -169,30 +170,6 @@ SUBROUTINE setup_problem(dx, dt, N, CFL, tend, ntime, xx, uu, uinit, initial_con
   uinit = 0.0_dp;   
   uinit = uu
 END SUBROUTINE   
-
-FUNCTION cumpute_errors(reference, xx, uu, dx, N) RESULT(error)
-  ! Compute errors in L1 norm
-  INTEGER, INTENT(IN)          :: N
-  REAL(kind = dp), INTENT(IN)  :: reference(:,:), uu(:), xx(:), dx
-  REAL(kind=dp), ALLOCATABLE   :: uexact(:)
-  REAL(kind = dp)              :: error, dxr
-  INTEGER                      :: i, j
-  ! Compute exact values
-  ALLOCATE(uexact(N))
-  uexact = 0.0_dp
-  dxr = reference(2,1) - reference(1,1)
-  DO i = 1, N
-    j = FLOOR((xx(i) - reference(1,1))/dxr)+1
-    if (j < size(reference,1)) THEN
-      uexact(i) = reference(j,2) + (xx(i) - reference(j,1))*(reference(j+1,2)-reference(j,2))/dxr
-    ELSE
-      uexact(i) = reference(j,2)
-    end if
-  END DO
-  error = sum(dx*abs(uu - uexact))
-  print *, "Error: ", error
-  DEALLOCATE(uexact)
-END FUNCTION cumpute_errors
 
 FUNCTION flux(uu) RESULT(ff)
   !Flux in Burguer's Equation

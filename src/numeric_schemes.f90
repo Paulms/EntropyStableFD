@@ -218,4 +218,24 @@ subroutine update_u_NC(uu, uold, N, dx, dt, KK, uleft, uright, Extra_Viscosity, 
     dt/dx**2*(KK(uold(j),uright)*(uright-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))+&
     epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
 end subroutine update_u_NC
+
+!Auxiliar function to compute errors
+FUNCTION cumpute_errors(ref, M, uu, N) RESULT(error)
+  ! Compute errors in L1 norm
+  INTEGER, INTENT(IN)          :: N, M
+  REAL(kind = dp), INTENT(IN)  :: ref(:), uu(:)
+  REAL(kind=dp), ALLOCATABLE   :: uexact(:)
+  REAL(kind = dp)              :: error
+  INTEGER                      :: i, j, R
+  ! Compute exact values
+  ALLOCATE(uexact(N))
+  uexact = 0.0_dp
+  R = NINT(1.0*M/N)
+  DO i = 1, N
+    uexact(i) = 1.0_dp/R*sum(ref((R*(i-1)+1):(R*i)))
+  END DO
+  error = 1.0_dp/N*sum(abs(uu - uexact))
+  print *, "Error: ", error
+  DEALLOCATE(uexact)
+END FUNCTION cumpute_errors
 END MODULE numeric_schemes
