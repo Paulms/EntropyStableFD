@@ -2,20 +2,26 @@ MODULE numeric_schemes
 USE decimal
 USE tipos
 IMPLICIT NONE
+  abstract interface
+    subroutine compute_dt(uu, CFL, dx, dt)
+      REAL(kind=8), INTENT(in)  :: uu(:), CFL, dx 
+      REAL(kind=8)              :: dt
+    end subroutine
+  end interface
 CONTAINS
-subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
+subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
-  REAL(kind = dp)           :: dx, dt, limit
-  INTEGER                   :: ntime
+  REAL(kind = dp)           :: dx, dt, CFL, limit, Tend
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:), fplus(:), fminus(:), KK(:)
   INTEGER                   :: tt
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp),external        :: Flux, DiffMat
+  procedure(compute_dt)           :: Cdt
   REAL(kind = dp)                 :: Kleft, Kright
   percentage = 0
-  limit = ntime/5
+  limit = Tend/5
   uleft = uu(1); uright = uu(N)
   ALLOCATE(fplus(N), fminus(N), uold(N), KK(N), utemp(N), utemp2(N))
   fplus = 0.0_dp;   fminus = 0.0_dp
@@ -23,8 +29,10 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
   fplusleft = Flux(uleft); fminusright = Flux(uright)
   Kleft = DiffMat(uleft); Kright = DiffMat(uright)
   Print *, "Starting computing with monotone scheme"
-  DO tt = 1,ntime
+  tt = 0.0_dp
+  DO WHILE (tt <= Tend)
     uold = uu
+    CALL cdt(uold, CFL, dx, dt)
     CALL Compute_fluxes_EO(uold, N, fplus, fminus, KK, Flux, DiffMat)
     !Engquist-Osher Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
@@ -41,9 +49,10 @@ subroutine Engquist_Osher(time_scheme, uu, N, ntime, dx, dt, Flux, DiffMat)
     !Print progress
     IF (tt > limit) THEN
       percentage = percentage + 20
-      limit = limit + ntime/5
+      limit = limit + Tend/5
       print *, percentage, "% completed"
     END IF
+    tt = tt + dt
   END DO
   print *, "completed..."
   DEALLOCATE(fplus, fminus, uold, KK, utemp, utemp2)
@@ -81,29 +90,31 @@ subroutine update_u_EO(uu, uold, N, dx, dt, fplus, fminus, fplusleft, fminusrigh
     dt/dx**2*(Kright - 2*KK(j) + KK(j-1))
 end subroutine update_u_EO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Entropy Stable Scheme, conservative diffusion
-subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, DiffMat, epsilon)
+subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt, epsilon)
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
-  REAL(kind = dp)           :: dx, dt, limit
-  INTEGER                   :: ntime
+  REAL(kind = dp)           :: dx, dt, limit, Tend, CFL
   REAL(kind = dp)           :: uu(:)
   INTEGER                   :: tt, j
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp), external        :: Flux, DiffMat
+  procedure(compute_dt)           :: Cdt
   REAL(kind = dp), ALLOCATABLE    :: uold(:), KK(:), utemp(:), utemp2(:)
   REAL(kind = dp)                 :: Kleft, Kright
   LOGICAL                         :: Extra_Viscosity
   REAL(kind = dp)                 :: epsilon
   percentage = 0
-  limit = ntime/5
+  limit = Tend/5
   uleft = uu(1); uright = uu(N)
   Kleft = DiffMat(uleft); Kright = DiffMat(uright)
   ALLOCATE(uold(N), KK(N), utemp(N), utemp2(N))
   uold = 0.0_dp; KK = 0.0_dp
   utemp = 0.0_dp; utemp2 = 0.0_dp
   Print *, "Starting computing with Entropy Stable scheme (conservative diffusion)"
-  DO tt = 1,ntime
+  tt = 0.0_dp
+  DO WHILE (tt <= Tend)
     uold = uu
+    CALL cdt(uold, CFL, dx, dt)
     DO j = 1,N
       KK(j) = DiffMat(uold(j))
     END DO
@@ -124,9 +135,10 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, 
     !Print progress
     IF (tt > limit) THEN
       percentage = percentage + 20
-      limit = limit + ntime/5
+      limit = limit + Tend/5
       print *, percentage, "% completed"
     END IF
+    tt = tt + dt
   END DO
   print *, "completed..."
   DEALLOCATE(uold, KK, utemp, utemp2)
@@ -155,26 +167,28 @@ subroutine update_u_EC(uu, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Ex
     epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
 end subroutine update_u_EC
 !!!!!!!!!!!!!!!!!!!!!!!!!11 Entropy Stable Scheme, non conservative Diffusion
-subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, dx, dt, Flux, KK, epsilon)
+subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, KK, cdt, epsilon)
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
-  REAL(kind = dp)           :: dx, dt, limit
-  INTEGER                   :: ntime
+  REAL(kind = dp)           :: dx, dt, limit, CFL, Tend
   REAL(kind = dp)           :: uu(:)
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
   INTEGER                   :: tt
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp),external        :: Flux, KK
+  procedure(compute_dt)           :: Cdt
   LOGICAL                         :: Extra_Viscosity
   REAL(kind = dp)                 :: epsilon
   percentage = 0
-  limit = ntime/5
+  limit = Tend/5
   uleft = uu(1); uright = uu(N)
   ALLOCATE(uold(N), utemp(N), utemp2(N))
   uold = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
   Print *, "Starting computing with Entropy Stable scheme (non-conservative diffusion)"
-  DO tt = 1,ntime
+  tt = 0.0_dp
+  DO WHILE (tt <= Tend)
     uold = uu
+    CALL cdt(uold, CFL, dx, dt)
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
       CALL update_u_NC(uu, uold, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
@@ -189,9 +203,10 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, ntime, d
     !Print progress
     IF (tt > limit) THEN
       percentage = percentage + 20
-      limit = limit + ntime/5
+      limit = limit + Tend/5
       print *, percentage, "% completed"
     END IF
+    tt = tt + dt
   END DO
   print *, "completed..."
   DEALLOCATE(uold, utemp, utemp2)
