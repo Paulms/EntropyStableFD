@@ -13,9 +13,8 @@ subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, CFL, limit, Tend
-  REAL(kind = dp)           :: uu(:)
+  REAL(kind = dp)           :: uu(:), tt
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:), fplus(:), fminus(:), KK(:)
-  INTEGER                   :: tt
   REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
   REAL(kind = dp),external        :: Flux, DiffMat
   procedure(compute_dt)           :: Cdt
@@ -94,8 +93,8 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, C
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, limit, Tend, CFL
-  REAL(kind = dp)           :: uu(:)
-  INTEGER                   :: tt, j
+  REAL(kind = dp)           :: uu(:), tt
+  INTEGER                   :: j
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp), external        :: Flux, DiffMat
   procedure(compute_dt)           :: Cdt
@@ -171,9 +170,8 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
   INTEGER                   :: time_scheme
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, limit, CFL, Tend
-  REAL(kind = dp)           :: uu(:)
+  REAL(kind = dp)           :: uu(:), tt
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
-  INTEGER                   :: tt
   REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp),external        :: Flux, KK
   procedure(compute_dt)           :: Cdt

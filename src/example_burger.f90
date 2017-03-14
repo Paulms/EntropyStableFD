@@ -35,7 +35,7 @@ subroutine burger_runexample(initial_condition)
   M = 16000
 
   !Save reference solution (Change binary flag if needed)
-  IF (.TRUE.) THEN
+  IF (.FALSE.) THEN
     name = 'burger_1_reference'
     N = M          ! Number of nodes
     CALL setup_problem(dx, N, xx, uu, uinit, initial_condition)
