@@ -132,12 +132,12 @@ SUBROUTINE setup_problem(dx, N, xx, uu, uinit, initial_condition)
   REAL(kind = dp), ALLOCATABLE    :: xx(:)
   REAL(kind = dp), ALLOCATABLE    :: uinit(:), uu(:)
   INTEGER                         :: i, j
-  dx = 4.0_dp/(N-1)
+  dx = 4.0_dp/N
 
     ! Allocate memory
   ALLOCATE(xx(N), uu(N))
   xx = 0.0_dp; uu = 0.0_dp
-  xx = (/(i*dx-dx-2,i=1, N)/)      ! Location of grid points
+  xx = (/(i*dx+dx/2-2,i=0, N-1)/)      ! Location of grid points
 
   ! Initial Conditions
   IF (initial_condition == 1) THEN
