@@ -14,35 +14,27 @@ subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, CFL, limit, Tend
   REAL(kind = dp)           :: uu(:), tt
-  REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:), fplus(:), fminus(:), KK(:)
-  REAL(kind = dp), ALLOCATABLE    :: uleft, uright, fplusleft, fminusright
+  REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
   REAL(kind = dp),external        :: Flux, DiffMat
   procedure(compute_dt)           :: Cdt
-  REAL(kind = dp)                 :: Kleft, Kright
   percentage = 0
   limit = Tend/5
-  uleft = uu(1); uright = uu(N)
-  ALLOCATE(fplus(N), fminus(N), uold(N), KK(N), utemp(N), utemp2(N))
-  fplus = 0.0_dp;   fminus = 0.0_dp
-  uold = 0.0_dp; KK = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
-  fplusleft = Flux(uleft); fminusright = Flux(uright)
-  Kleft = DiffMat(uleft); Kright = DiffMat(uright)
+  ALLOCATE(uold(N), utemp(N), utemp2(N))
+  uold = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
   Print *, "Starting computing with monotone scheme"
   tt = 0.0_dp
   DO WHILE (tt <= Tend)
     uold = uu
     CALL cdt(uold, CFL, dx, dt)
-    CALL Compute_fluxes_EO(uold, N, fplus, fminus, KK, Flux, DiffMat)
     !Engquist-Osher Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_EO(uu, uold, N, dx, dt, fplus, fminus, fplusleft, fminusright, KK, Kleft, Kright)
+      CALL update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
     !Engquist-Osher Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_EO(utemp, uold, N, dx, dt, fplus, fminus, fplusleft, fminusright, KK, Kleft, Kright)
+      CALL update_u_EO(utemp, uold, N, dx, dt, Flux, DiffMat)
       !SECOND STEP
-      CALL Compute_fluxes_EO(utemp, N, fplus, fminus, KK, Flux, DiffMat)
-      CALL update_u_EO(utemp2, utemp, N, dx, dt, fplus, fminus, fplusleft, fminusright, KK, Kleft, Kright)
+      CALL update_u_EO(utemp2, utemp, N, dx, dt, Flux, DiffMat)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -54,29 +46,33 @@ subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
     tt = tt + dt
   END DO
   print *, "completed..."
-  DEALLOCATE(fplus, fminus, uold, KK, utemp, utemp2)
+  DEALLOCATE(uold, utemp, utemp2)
 end subroutine Engquist_Osher
 
-subroutine Compute_fluxes_EO(uold, N, fplus, fminus, KK, Flux, DiffMat)
-  REAL(kind = dp), intent(in)     :: uold(:)
-  REAL(kind = dp)                 :: fplus(:), fminus(:), KK(:)
-  INTEGER                         :: j, N
-  REAL(kind = dp),external        :: Flux, DiffMat
-  DO j = 1,N
-    IF (uold(j) > 0.0_dp) THEN
-      fplus(j) = Flux(uold(j)); fminus(j) = 0.0_dp
-    ELSE
-      fplus(j) = 0.0_dp; fminus(j) = Flux(uold(j))
-    END IF
-    KK(j) = DiffMat(uold(j))
-  END DO
-end subroutine Compute_fluxes_EO
-subroutine update_u_EO(uu, uold, N, dx, dt, fplus, fminus, fplusleft, fminusright, KK, Kleft, Kright)
-    REAL(kind = dp)           :: dx, dt
-    REAL(kind = dp)           :: uu(:), uold(:), fplus(:), fminus(:), KK(:)
-    INTEGER                   :: N, j
-    REAL(kind = dp)           :: fplusleft, fminusright
-    REAL(kind = dp)           :: Kleft, Kright
+subroutine update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
+    REAL(kind = dp), INTENT(IN)   :: dx, dt
+    REAL(kind = dp)               :: uu(:), uold(:)
+    REAL(kind = dp), ALLOCATABLE  :: fplus(:), fminus(:), KK(:)
+    INTEGER                       :: N, j
+    REAL(kind = dp)               :: fplusleft, fminusright
+    REAL(kind = dp)               :: Kleft, Kright, uleft, uright
+    REAL(kind = dp),external      :: Flux, DiffMat
+    !Allocate vectores
+    ALLOCATE(fplus(N), fminus(N), KK(N))
+    fplus = 0.0_dp;   fminus = 0.0_dp; KK = 0.0_dp
+    
+    DO j = 1,N
+      IF (uold(j) > 0.0_dp) THEN
+        fplus(j) = Flux(uold(j)); fminus(j) = 0.0_dp
+      ELSE
+        fplus(j) = 0.0_dp; fminus(j) = Flux(uold(j))
+      END IF
+      KK(j) = DiffMat(uold(j))
+    END DO
+    uleft = uold(1); uright = uold(N)
+    fplusleft = Flux(uleft); fminusright = Flux(uright)
+    Kleft = DiffMat(uleft); Kright = DiffMat(uright)
+
     j = 1
     uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) +&
     dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft)
@@ -87,48 +83,39 @@ subroutine update_u_EO(uu, uold, N, dx, dt, fplus, fminus, fplusleft, fminusrigh
     j = N
     uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) +&
     dt/dx**2*(Kright - 2*KK(j) + KK(j-1))
+    DEALLOCATE(fplus, fminus, KK)
 end subroutine update_u_EO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Entropy Stable Scheme, conservative diffusion
 subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt, epsilon)
-  INTEGER                   :: time_scheme
-  INTEGER                   :: N, percentage
-  REAL(kind = dp)           :: dx, dt, limit, Tend, CFL
-  REAL(kind = dp)           :: uu(:), tt
-  INTEGER                   :: j
-  REAL(kind = dp)           :: uleft, uright
-  REAL(kind = dp), external        :: Flux, DiffMat
-  procedure(compute_dt)           :: Cdt
-  REAL(kind = dp), ALLOCATABLE    :: uold(:), KK(:), utemp(:), utemp2(:)
-  REAL(kind = dp)                 :: Kleft, Kright
-  LOGICAL                         :: Extra_Viscosity
-  REAL(kind = dp)                 :: epsilon
+  INTEGER                       :: time_scheme
+  INTEGER                       :: N, percentage
+  REAL(kind = dp)               :: dx, dt, limit, Tend, CFL
+  REAL(kind = dp)               :: uu(:), tt
+  INTEGER                       :: j
+  REAL(kind = dp), external     :: Flux, DiffMat
+  procedure(compute_dt)         :: Cdt
+  REAL(kind = dp), ALLOCATABLE  :: uold(:), utemp(:), utemp2(:)
+  LOGICAL                       :: Extra_Viscosity
+  REAL(kind = dp)               :: epsilon
   percentage = 0
   limit = Tend/5
-  uleft = uu(1); uright = uu(N)
-  Kleft = DiffMat(uleft); Kright = DiffMat(uright)
-  ALLOCATE(uold(N), KK(N), utemp(N), utemp2(N))
-  uold = 0.0_dp; KK = 0.0_dp
+  ALLOCATE(uold(N), utemp(N), utemp2(N))
+  uold = 0.0_dp;
   utemp = 0.0_dp; utemp2 = 0.0_dp
   Print *, "Starting computing with Entropy Stable scheme (conservative diffusion)"
   tt = 0.0_dp
   DO WHILE (tt <= Tend)
     uold = uu
     CALL cdt(uold, CFL, dx, dt)
-    DO j = 1,N
-      KK(j) = DiffMat(uold(j))
-    END DO
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_EC(uu, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
     !Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_EC(utemp, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_EC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
       !SECOND STEP
-      DO j = 1,N
-        KK(j) = DiffMat(utemp(j))
-      END DO
-      CALL update_u_EC(utemp2, utemp, N, dx, dt, KK, Kleft, Kright, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_EC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -140,17 +127,30 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, C
     tt = tt + dt
   END DO
   print *, "completed..."
-  DEALLOCATE(uold, KK, utemp, utemp2)
+  DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_Conservative
 
-subroutine update_u_EC(uu, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Extra_Viscosity, epsilon, Flux)
-    REAL(kind = dp)           :: epsilon, dx, dt
-    REAL(kind = dp)           :: uu(:), uold(:), KK(:)
-    INTEGER                   :: N, j
-    REAL(kind = dp)           :: uleft, uright
-    REAL(kind = dp)           :: Kleft, Kright
-    LOGICAL                   :: Extra_Viscosity
-    REAL(kind = dp), external :: Flux
+subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
+    REAL(kind = dp)               :: epsilon, dx, dt
+    REAL(kind = dp)               :: uu(:), uold(:)
+    REAL(kind = dp), ALLOCATABLE  :: KK(:)
+    INTEGER                       :: N, j
+    REAL(kind = dp)               :: uleft, uright
+    REAL(kind = dp)               :: Kleft, Kright
+    LOGICAL                       :: Extra_Viscosity
+    REAL(kind = dp), external     :: Flux, DiffMat
+    !Allocate vectors
+    ALLOCATE(KK(N))
+    KK = 0.0_dp
+    ! Update ghost cells
+    uleft = uold(1); uright = uold(N)
+    Kleft = DiffMat(uleft); Kright = DiffMat(uright)
+
+    ! Compute diffusion flux
+    DO j = 1,N
+      KK(j) = DiffMat(uold(j))
+    END DO
+
     j = 1
     uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
     dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft) +&
@@ -164,6 +164,8 @@ subroutine update_u_EC(uu, uold, N, dx, dt, KK, Kleft, Kright, uleft, uright, Ex
     uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
     dt/dx**2*(Kright - 2*KK(j) + KK(j-1))+&
     epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
+
+    DEALLOCATE(KK)
 end subroutine update_u_EC
 !!!!!!!!!!!!!!!!!!!!!!!!!11 Entropy Stable Scheme, non conservative Diffusion
 subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, KK, cdt, epsilon)
@@ -172,14 +174,12 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
   REAL(kind = dp)           :: dx, dt, limit, CFL, Tend
   REAL(kind = dp)           :: uu(:), tt
   REAL(kind = dp), ALLOCATABLE    :: uold(:), utemp(:), utemp2(:)
-  REAL(kind = dp)           :: uleft, uright
   REAL(kind = dp),external        :: Flux, KK
   procedure(compute_dt)           :: Cdt
   LOGICAL                         :: Extra_Viscosity
   REAL(kind = dp)                 :: epsilon
   percentage = 0
   limit = Tend/5
-  uleft = uu(1); uright = uu(N)
   ALLOCATE(uold(N), utemp(N), utemp2(N))
   uold = 0.0_dp; utemp = 0.0_dp; utemp2 = 0.0_dp
   Print *, "Starting computing with Entropy Stable scheme (non-conservative diffusion)"
@@ -189,13 +189,13 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
     CALL cdt(uold, CFL, dx, dt)
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_NC(uu, uold, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
       !Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_NC(utemp, uold, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_NC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
       !SECOND STEP
-      CALL update_u_NC(utemp2, utemp, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
+      CALL update_u_NC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux,KK)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -210,13 +210,17 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_NonConservative
 
-subroutine update_u_NC(uu, uold, N, dx, dt, KK, uleft, uright, Extra_Viscosity, epsilon, Flux)
+subroutine update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
     REAL(kind = dp)           :: epsilon, dx, dt
     REAL(kind = dp)           :: uu(:), uold(:)
     INTEGER                   :: N, j
     REAL(kind = dp)           :: uleft, uright
     LOGICAL                   :: Extra_Viscosity
     REAL(kind = dp), external :: Flux, KK
+
+    ! Ghost Cells
+    uleft = uold(1); uright = uold(N)
+
     j = 1
     uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
     dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uleft,uold(j))*(uold(j)-uleft)) +&
