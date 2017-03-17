@@ -35,8 +35,12 @@ subroutine burger_runexample(initial_condition)
   M = 16000
 
   !Save reference solution (Change binary flag if needed)
-  IF (.FALSE.) THEN
-    name = 'burger_1_reference'
+  IF (.TRUE.) THEN
+    IF (initial_condition == 1) THEN
+      name = 'burger_1_reference'
+    ELSE
+      name = 'burger_1b_reference'
+    END IF
     N = M          ! Number of nodes
     CALL setup_problem(dx, N, xx, uu, uinit, initial_condition)
     ntests = 1
@@ -47,18 +51,25 @@ subroutine burger_runexample(initial_condition)
     results(:,2) = uu
     CALL save_matrix(results, names, name)
     DEALLOCATE(results, uu, names, uinit, xx)
-    STOP
   END IF
 
   !Compute errors (Change binary flag if needed)
   IF (.TRUE.) THEN
-    name = 'burger_1_reference'
+    IF (initial_condition == 1) THEN
+      name = 'burger_1_reference'
+    ELSE
+      name = 'burger_1b_reference'
+    END IF
     ALLOCATE(steps(5))
     steps = [200,400,800,1600,3200]
     !Read reference solution
     CALL read_matrix(name , reference, 16000, 2)
     ! Prepare to save matrix
-    name = 'burger_1_errors'
+    IF (initial_condition == 1) THEN
+      name = 'burger_1_errors'
+    ELSE
+      name = 'burger_1b_errors'
+    END IF
     ntests = 5
 
     ALLOCATE(results(5, ntests+1), names(ntests+1))
@@ -96,9 +107,13 @@ subroutine burger_runexample(initial_condition)
   END IF
 
   !Run numerical schemes
-  N = 200          ! Number of nodes
+  N = 400          ! Number of nodes
   CALL setup_problem(dx, N, xx, uu, uinit, initial_condition)
-  name = 'burger_1_200'
+    IF (initial_condition == 1) THEN
+    name = 'burger_1_400'
+  ELSE
+    name = 'burger_1b_400'
+  END IF
   ntests = 5
   ALLOCATE(results(N, ntests+1), names(ntests+1))
   names = ['x    ', 'MS   ', 'ESC  ', 'ESNC ', 'ESC2 ','ESNC2']
