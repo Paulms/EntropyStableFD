@@ -10,7 +10,9 @@ PROGRAM EntropyStableFD
   !! Version: 0.1                                         !!  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   USE example_burger
+  USE test2
   IMPLICIT NONE
-  CALL burger_runexample(2)
+  !CALL burger_runexample(2)
+  CALL test2_run()
 
 END PROGRAM EntropyStableFD

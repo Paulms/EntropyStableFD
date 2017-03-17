@@ -11,7 +11,7 @@ CONTAINS
   SUBROUTINE save_matrix(data, names, name)
     ! Save data matrix in file
     CHARACTER(LEN=32)             :: name
-    CHARACTER(LEN=5)              :: names(:)
+    CHARACTER(LEN=8)              :: names(:)
     REAL(kind=dp)                 :: data(:,:)
     CHARACTER(LEN=32)             :: name_dat
     INTEGER                       :: iunit1, N, i
