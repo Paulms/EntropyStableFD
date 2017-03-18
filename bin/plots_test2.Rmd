@@ -1,0 +1,75 @@
+---
+title: "Test 2"
+output: html_notebook
+---
+
+Loading required libraries
+
+```{r}
+library(rio)
+library(ggplot2)
+library(ggthemes)
+library(reshape2)
+library(rbokeh)
+library(plotly)
+```
+
+Set default directory
+```{r}
+setwd("~/code/EntropyStableFD/bin")
+```
+
+##Plot of single series:
+Read data
+```{r}
+data = import('test_2_400.txt')
+```
+Plot:
+```{r}
+ggplot(data=data, aes(x=X, y=data[,4])) +
+  geom_line()+geom_point()
+```
+
+##Plot multiple series
+Reshape database:
+```{r}
+melted <- melt(data, id="X")
+```
+Add reference solution:
+```{r}
+ref = import('test_2_reference.txt')
+```
+Plot:
+```{r}
+figure(data= melted) %>%
+  ly_lines(X, value, color = variable) #%>%
+  #ly_lines(x, REF, data = ref, legend = "REF")
+```
+```{r}
+figure(data= melted) %>%
+  ly_lines(x, value, color = variable) %>%
+  ly_lines(x, REF, data = ref, legend = "REF")
+```
+
+```{r}
+ggplot() +
+  geom_line(data=melted, aes(x=x, y=value, color=variable)) +
+  geom_line(data=ref, aes(x=x, y=REF)) +
+  scale_color_ptol("cyl") +
+  theme_minimal()
+```
+
+#Errores
+
+## Test 1 a
+
+```{r}
+errores = import('test_2_errors.txt')
+errores
+```
+```{r}
+Order = log2(errores[1:4,]/errores[2:5,])
+Order
+```
+
+

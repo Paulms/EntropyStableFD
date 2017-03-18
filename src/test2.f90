@@ -30,7 +30,7 @@ subroutine test2_run()
   M = 8000
 
   !Save reference solution (Change binary flag if needed)
-  IF (.FALSE.) THEN
+  IF (.TRUE.) THEN
     name = 'test_2_reference'
     N = M          ! Number of nodes
     CALL setup_problem(dx, N, xx, uu, uinit)
@@ -47,7 +47,7 @@ subroutine test2_run()
   !Compute errors (Change binary flag if needed)
   IF (.TRUE.) THEN
     name = 'test_2_reference'
-    ALLOCATE(steps(5))
+    ALLOCATE(steps(4))
     steps = [200,400,800,1600]
     !Read reference solution
     CALL read_matrix(name , reference, M, 2)
@@ -67,11 +67,11 @@ subroutine test2_run()
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,2) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp) !ESC
+      CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp*dx) !ESC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,3) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp) !ESNC
+      CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp*dx) !ESNC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(i,4) = error
       uu = uinit; error = 0.0_dp
@@ -86,18 +86,19 @@ subroutine test2_run()
   N = 400          ! Number of nodes
   CALL setup_problem(dx, N, xx, uu, uinit)
   name = 'test_2_400'
-  ntests = 3
+  ntests = 4
   ALLOCATE(results(N, ntests+1), names(ntests+1))
-  names = ['N       ', 'MS      ', 'ESC-0.2 ', 'ESNC-0.2']
+  names = ['X       ', 'u0      ','MS      ', 'ESC-0.2 ', 'ESNC-0.2']
   results(:,1) = xx
+  results(:,2) = uinit
   CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
-  results(:,2) = uu
-  uu = uinit
-  CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp) !ESC-0.2
   results(:,3) = uu
   uu = uinit
-  CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp) !ESNC-0.2
+  CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp*dx) !ESC-0.2
   results(:,4) = uu
+  uu = uinit
+  CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp*dx) !ESNC-0.2
+  results(:,5) = uu
   CALL save_matrix(results, names, name)
   !CALL plot_results(uu, uinit, xx, name)
   ! Clean memory
@@ -155,6 +156,7 @@ FUNCTION DiffFlux(uu) RESULT(kk)
   INTEGER                      :: N, j
   N=SIZE(uu,1)
   ALLOCATE(kk(N))
+  kk = 0.0_dp
   DO j = 1,N
     if (uu(j) < 0.5) THEN
       kk(j) = 0.0_dp
@@ -170,12 +172,12 @@ FUNCTION DiffMat(uu) RESULT(kk)
   !Conservative diffusion in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
   REAL(kind = dp)              :: kk
-  if (uu < 0.5) THEN
+  if (uu <= 0.5) THEN
     kk = 0.0_dp
   ELSEIF (0.5 < uu .AND. uu < 0.6) THEN
     kk = 1.25*uu**2-1.25*uu+5.0/16.0
   ELSE
-    kk = 0.25*uu-11/80
+    kk = 0.25*uu-11.0_dp/80
   END iF
 END FUNCTION DiffMat
 
@@ -203,7 +205,7 @@ FUNCTION KKN(ul, ur) RESULT(kk)
   elseif (ul >= 0.6 .AND. ur >= 0.6) THEN
     kk = 2.0/(ul+ur)*(1.0/8*(ul+ur))
   else
-    kk = 2/(ul+ur)*(r(ur)-r(ul))/(ur-ul)
+    kk = 2.0/(ul+ur)*(r(ur)-r(ul))/(ur-ul)
   end if
 END FUNCTION KKN
 
@@ -213,9 +215,9 @@ function r(u) RESULT (rr)
   if (u <= 0.5) THEN
     rr = 0.0_dp
   elseif (0.5<u .AND. u <0.6) THEN
-    rr = 5.0/6*u**3-5.0/8*u**2+5/96
+    rr = 5.0/6*u**3-5.0/8*u**2+5.0_dp/96
   else
-    rr = u**2/8-91/2400
+    rr = u**2/8.0-91.0_dp/2400
   end if
 end
 
