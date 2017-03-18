@@ -188,6 +188,26 @@ library(reshape2)
 library(rbokeh)
 library(plotly)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYcGxvdGx54oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6Z2dwbG90MuKAmTpcblxuICAgIGxhc3RfcGxvdFxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnJpb+KAmTpcblxuICAgIGV4cG9ydFxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZmlsdGVyXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6Z3JhcGhpY3PigJk6XG5cbiAgICBsYXlvdXRcbiJ9 -->
+<pre><code>
+Attaching package: ‘plotly’
+
+The following object is masked from ‘package:ggplot2’:
+
+    last_plot
+
+The following object is masked from ‘package:rio’:
+
+    export
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following object is masked from ‘package:graphics’:
+
+    layout</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Set default directory</p>
@@ -270,19 +290,27 @@ library(plotly)</code></pre>
 <h2>Test 1 a</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NCwibnJvdyI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERpaXVCaVlHQmdZbUJtWm1aZ1lnWXlXWmlBQkNNREN3TW5pSzVnWUdBV0Jva0NNUitJZHNoa0FBT0hTaWpkQ2FWbk1zQUFXSjE5N2hlcGJvWUp5KzBUbk5nZTNUK3NZUjlRTlowOXlPNkV2Y09zclIrak54K0RxNHZMKzExOWxubTJmY0NDdjZGTmQvVHQ3WlUrenRjOHhHZXZJL1RvaytDN2VMaTZYblAzb0tnOVQrd25yU3ErKzg2ZDMzN3lrZnp6dDR5bTJFL2R1dkRIRnJOQ05JZXo1aVhtcGhZREdRSmd4ME45NHdkbE1Qa0dRMW5zcnNIT3VnWjZSbEF1aDJ1d0g0U1BhaHhuVVg2NUhzeElYcEFKRFJDL3NxRGJtNXlUV0F5ekZ5YklsWkpZa3FpWFZnVFVEK1Q5UTlQQ25sOVFrcG1mQjlURUJBcHBWalROakVWb0FnS2xlU0NYcE9nbVo1VG1aZXNhbVlCc0FNdERNQytVWmtGbGcreGsrZzgxaXhWcUZsdHFYbnBtWGlyTThUbUpTYWs1VUE0ZjBNdGdIK3NWRkdYbWxjQzhBaFF0MWl2SkwwbUVxZU5LenMrQmlZQTl4L0FQQUZKVGhOQllBZ0FBIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8yX2Vycm9ycy50eHQnKVxuZXJyb3Jlc1xuYGBgIn0= -->
+<pre class="r"><code>errores = import('test_2_errors.txt')
+errores</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NCwibnJvdyI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERpaXVCaVlHQmdZbUJtWm1aZ1lnWXlXWmlBQkNNREN3TW5pSzVnWUdBV0Jva0NNUitJZHNoa0FBT0hTaWpkQ2FWbk1zQUFXSjE5UWQ0YVRwN09VdnVFeTI5aWRYYnNzZyswTVE2Mjl2VzBkK0tRZDF6WTlRNnVMcEYvU3VvSE5rNzdnTHhWdXpmcnZiTzNlK0R4WEZEaHY3MnVyb3JLL2pZWHVMcjV1bG9xQlJHUjlrc1NnaVp2REhwcXYyeUpuRVBxM25mMnl4UE81TGtsYmtWek9HdGVZbTVxTVpBaEFIWTgxRGQrVUFhVGJ6Q1V4ZTRhN0t4cm9HY0U1WEs0QnZ0QitLakdjUmJsbCt2QmpPUUZtZEFBOFNzTHVyM0pPWW5GTUh0aGdsd3BpU1dKZW1sRlFQMUEzajgwTGV6NUJTV1orWGxBVFV5Z2tHWkYwOHhZaENiQVg1b0hja21LYm5KR2FWNjJyaW5JQXJBMEJQTkNhUlpVTnNoS3B2OVFvMWloUnJHbDVxVm41cVhDM0o2VG1KU2FBK1h3QVgwTTlyQmVRVkZtWGduTUowRFJZcjJTL0pKRW1EcXU1UHdjbUFqWWJ3ei9BTVNaTnZOWEFnQUEifQ== -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["N"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["ESC-0.2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ESNC-0.2"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"200","2":"0.0036564368","3":"0.0018575149","4":"0.01426559","_rn_":"1"},{"1":"400","2":"0.0019846091","3":"0.0010149454","4":"0.01822835","_rn_":"2"},{"1":"800","2":"0.0010057902","3":"0.0004751053","4":"0.01930403","_rn_":"3"},{"1":"1600","2":"0.0005067242","3":"0.0002141859","4":"0.02120069","_rn_":"4"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["N"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["ESC-0.2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ESNC-0.2"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"200","2":"0.0040117951","3":"0.0020826243","4":"0.03044573","_rn_":"1"},{"1":"400","2":"0.0020541779","3":"0.0010029476","4":"0.03979738","_rn_":"2"},{"1":"800","2":"0.0010519506","3":"0.0004711321","4":"0.04422087","_rn_":"3"},{"1":"1600","2":"0.0005502846","3":"0.0002225978","4":"0.04566039","_rn_":"4"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NCwibnJvdyI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERpaXVCaVlHQmdZbUJtWm1aZ1lnWXlXWmlBQkNNREN3TW5pSzVnWUdBV0Jva0NNUitJM3YrQkFRelE2WG93emI0SXBzNytqZW03N2RZSDNPM2ZKNVRkV3JhbXpQNzlzcWhzalJ2TkdPcGVQemZVdWpIaGcvM0gxdEw5OTc4L3NQK1UvRUR1c040aGRIWDdyeTJTNFh2L2JjTCtyYm9jcGRITE8vWWY5R3MrM2FTaWkxQ0g0bkRXdk1UYzFHSWdRd0RzZUtodi9LQU1KdDlnS0l2ZE5kaFoxMERQQ01ybGNBMzJnL0JSamVNc3lpL1hneG5KQ3pLaEFlSnRGblI3azNNU2kySDJ3Z1M1VWhKTEV2WFNpb0Q2Z2J4L2FGclk4d3RLTXZQemdKcVlRQ0hOaXFhWnNRaE5RS0EwRCtTU0ZOM2tqTks4YkYwak01QU5ZSGtJNW9YU0xLaHNrSjFNLzZGbXNVTE5Za3ZOUzgvTVM0VTVQaWN4S1RVSHl1RURlaG5zWTcyQ29zeThFcGhYZ0tMRmVpWDVKWWt3ZFZ6SitUa3dFYkRuR1A0QkFCTFI4TGxZQWdBQSJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuT3JkZXIgPSBsb2cyKGVycm9yZXNbMTo0LF0vZXJyb3Jlc1syOjUsXSlcbk9yZGVyXG5gYGAifQ== -->
+<pre class="r"><code>Order = log2(errores[1:4,]/errores[2:5,])
+Order</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NCwibnJvdyI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERpaXVCaVlHQmdZbUJtWm1aZ1lnWXlXWmlBQkNNREN3TW5pSzVnWUdBV0Jva0NNUitJM3YrQkFRelE2WG93emI0SXBzNyszYlBubjgvbzZOcS9leG9pUDNQMVFmdTNyMWhkQWozT1lLajdjUGV5NGt2NVkvWWZDeTVNMlhtVHdmNmozNXhiMHlRdW9hdmJmMk4zeU0yMzg2UDNIeTVyT0ZqSFpydC8rY29wajlpLy9rR29RM0U0YTE1aWJtb3hrQ0VBZGp6VU4zNVFCcE52TUpURjdocnNyR3VnWndUbGNyZ0crMEg0cU1aeEZ1V1g2OEdNNUFXWjBBRHhOZ3U2dmNrNWljVXdlMkdDWENtSkpZbDZhVVZBL1VEZVB6UXQ3UGtGSlpuNWVVQk5US0NRWmtYVHpGaUVKc0JmbWdkeVNZcHVja1pwWHJhdUNjZ0NzRFFFODBKcEZsUTJ5RXFtLzFDaldLRkdzYVhtcFdmbXBjTGNucE9ZbEpvRDVmQUJmUXoyc0Y1QlVXWmVDY3duUU5GaXZaTDhra1NZT3E3ay9CeVlDTmh2RFA4QU9XMlp1RmNDQUFBPSJ9 -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["N"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["ESC-0.2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ESNC-0.2"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"-1","2":"0.8815836","3":"0.8719717","4":"-0.3536444","_rn_":"1"},{"1":"-1","2":"0.9805254","3":"1.0950830","4":"-0.0827184","_rn_":"2"},{"1":"-1","2":"0.9890568","3":"1.1493837","4":"-0.1352086","_rn_":"3"},{"1":"NA","2":"NA","3":"NA","4":"NA","_rn_":"4"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["N"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["ESC-0.2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ESNC-0.2"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"-1","2":"0.9656868","3":"1.054156","4":"-0.38643380","_rn_":"1"},{"1":"-1","2":"0.9654942","3":"1.090043","4":"-0.15205392","_rn_":"2"},{"1":"-1","2":"0.9348170","3":"1.081693","4":"-0.04621568","_rn_":"3"},{"1":"NA","2":"NA","3":"NA","4":"NA","_rn_":"4"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-frame-end -->
