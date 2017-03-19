@@ -8,20 +8,28 @@ MODULE plot
   USE util
   IMPLICIT NONE
 CONTAINS
-  SUBROUTINE save_matrix(data, names, name)
+  SUBROUTINE save_matrix(data, names, name, dir)
     ! Save data matrix in file
     CHARACTER(LEN=32)             :: name
     CHARACTER(LEN=8)              :: names(:)
     REAL(kind=dp)                 :: data(:,:)
     CHARACTER(LEN=32)             :: name_dat
     INTEGER                       :: iunit1, N, i
+    ! dir = 0: series in columns, dir = 1: series in rows
+    INTEGER                       :: dir 
     name_dat = TRIM(ADJUSTL(name))//".txt"
     CALL util_get_unit(iunit1)
     N = size(data,1)
     OPEN(iunit1,file=name_dat,   status='replace', action='write')
-      WRITE(iunit1,*) names
+      if (dir == 0) then
+        WRITE(iunit1,*) names
+      end if
       DO i = 1,N
-        WRITE(iunit1,*) data(i,:)
+        if (dir == 0) then
+          WRITE(iunit1,*) data(i,:)
+        else
+          WRITE(iunit1,*) names(i), data(i,:)
+        end if
       END DO
     CLOSE(iunit1)
   END SUBROUTINE

@@ -1,5 +1,5 @@
 ---
-title: "Test 2"
+title: "Test 1b"
 output: html_notebook
 ---
 
@@ -22,11 +22,11 @@ setwd("~/code/EntropyStableFD/bin")
 ##Plot of single series:
 Read data
 ```{r}
-data = import('test_2_400.txt')
+data = import('test_1b_400.txt')
 ```
 Plot:
 ```{r}
-ggplot(data=data, aes(x=X, y=data[,4])) +
+ggplot(data=data, aes(x=X, y=MS)) +
   geom_line()+geom_point()
 ```
 
@@ -37,7 +37,7 @@ melted <- melt(data, id="X")
 ```
 Add reference solution:
 ```{r}
-ref = import('test_2_reference.txt')
+ref = import('test_1b_reference.txt')
 ```
 Plot:
 ```{r}
@@ -59,10 +59,11 @@ ggplot() +
 ## Test 1 a
 
 ```{r}
-errores = import('test_2_errors.txt', head = TRUE)
+errores = import('test_1b_errors.txt', head = TRUE)
 errores
 ```
 ```{r}
-Order = log2(errores[,2:4]/errores[,3:5])
+N = length(errores)
+Order = log2(errores[,2:(N-1)]/errores[,3:N])
 Order
 ```

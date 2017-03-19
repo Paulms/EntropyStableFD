@@ -1,11 +1,11 @@
 ---
-title: "R Notebook"
+title: "Test 1"
 output: html_notebook
 ---
 
 Loading required libraries
 
-```{r}
+```{r, message=FALSE}
 library(rio)
 library(ggplot2)
 library(ggthemes)
@@ -22,33 +22,28 @@ setwd("~/code/EntropyStableFD/bin")
 ##Plot of single series:
 Read data
 ```{r}
-data = import('burger_1_3200.txt')
+data = import('test_1_400.txt')
 ```
 Plot:
 ```{r}
-gplot(data=data, aes(x=x, y=MS)) +
+ggplot(data=data, aes(x=X, y=MS)) +
   geom_line()+geom_point()
 ```
 
 ##Plot multiple series
 Reshape database:
 ```{r}
-melted <- melt(data, id="x")
+melted <- melt(data, id="X")
 ```
 Add reference solution:
 ```{r}
-ref = import('burger_1_reference.txt')
+ref = import('test_1_reference.txt')
 ```
 Plot:
 ```{r}
 figure(data= melted) %>%
-  ly_lines(x, value, color = variable) %>%
-  ly_lines(x, REF, data = ref, legend = "REF")
-```
-```{r}
-figure(data= melted) %>%
-  ly_lines(x, value, color = variable) %>%
-  ly_lines(x, REF, data = ref, legend = "REF")
+  ly_lines(X, value, color = variable) %>%
+  ly_points(x, REF, data = ref, legend = "REF", size =2)
 ```
 
 ```{r}
@@ -64,13 +59,11 @@ ggplot() +
 ## Test 1 a
 
 ```{r}
-errores = import('burger_1_errors.txt')
-#errores = import('burger_2_errors.txt')
+errores = import('test_1_errors.txt', head = TRUE)
 errores
 ```
 ```{r}
-Order = log2(errores[1:4,]/errores[2:5,])
+N = length(errores)
+Order = log2(errores[,2:(N-1)]/errores[,3:N])
 Order
 ```
-
-

@@ -9,7 +9,7 @@ IMPLICIT NONE
 PUBLIC test2_run
 PRIVATE
 CONTAINS
-subroutine test2_run()
+subroutine test2_run(run_ref, run_err)
   REAL(kind = dp)           :: Tend
   INTEGER                   :: N, M
   REAL(kind = dp)           :: dx, error
@@ -22,6 +22,7 @@ subroutine test2_run()
   CHARACTER(LEN=32)               :: name           ! File name to save plot data
   REAL(kind = dp), ALLOCATABLE    :: results(:,:)
   CHARACTER(LEN=8), ALLOCATABLE  :: names(:)
+  LOGICAL                         :: run_ref, run_err
   ! Zero variables
   Tend = 0.0_dp; error = 0.0_dp; dx = 0.0_dp; CFL = 0.0_dp
   ! Initialize variables
@@ -30,7 +31,7 @@ subroutine test2_run()
   M = 8000
 
   !Save reference solution (Change binary flag if needed)
-  IF (.TRUE.) THEN
+  IF (run_ref) THEN
     name = 'test_2_reference'
     N = M          ! Number of nodes
     CALL setup_problem(dx, N, xx, uu, uinit)
@@ -40,12 +41,12 @@ subroutine test2_run()
     results(:,1) = xx
     CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp*dx) !ESC-0.2
     results(:,2) = uu
-    CALL save_matrix(results, names, name)
+    CALL save_matrix(results, names, name, 0)
     DEALLOCATE(results, uu, names, uinit, xx)
   END IF
 
   !Compute errors (Change binary flag if needed)
-  IF (.TRUE.) THEN
+  IF (run_err) THEN
     name = 'test_2_reference'
     ALLOCATE(steps(4))
     steps = [200,400,800,1600]
@@ -55,29 +56,29 @@ subroutine test2_run()
     name = 'test_2_errors'
     ntests = 3
 
-    ALLOCATE(results(4, ntests+1), names(ntests+1))
+    ALLOCATE(results(ntests+1, 4), names(ntests+1))
     results = 0.0_dp
     names = ['N       ', 'MS      ', 'ESC-0.2 ', 'ESNC-0.2']
-    results(:,1) = steps
+    results(1,:) = steps
     DO i = 1, 4
       N = steps(i)
       print *, "Starting numerical tests with N = ", N
       CALL setup_problem(dx, N, xx, uu, uinit)
       CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
       error = cumpute_errors(reference(:,2), M, uu, N)
-      results(i,2) = error
+      results(2, i) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.2_dp*dx) !ESC
       error = cumpute_errors(reference(:,2), M, uu, N)
-      results(i,3) = error
+      results(3, i) = error
       uu = uinit; error = 0.0_dp
       CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp*dx) !ESNC
       error = cumpute_errors(reference(:,2), M, uu, N)
-      results(i,4) = error
+      results(4, i) = error
       uu = uinit; error = 0.0_dp
       DEALLOCATE(uu, uinit, xx)
     END DO
-    CALL save_matrix(results, names, name)
+    CALL save_matrix(results, names, name, 1)
     DEALLOCATE(results, names)
     STOP
   END IF
@@ -99,7 +100,7 @@ subroutine test2_run()
   uu = uinit
   CALL Entropy_NonConservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.2_dp*dx) !ESNC-0.2
   results(:,5) = uu
-  CALL save_matrix(results, names, name)
+  CALL save_matrix(results, names, name, 0)
   !CALL plot_results(uu, uinit, xx, name)
   ! Clean memory
   DEALLOCATE(results, uu, names, uinit, xx)

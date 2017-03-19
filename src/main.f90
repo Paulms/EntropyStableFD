@@ -12,7 +12,9 @@ PROGRAM EntropyStableFD
   USE example_burger
   USE test2
   IMPLICIT NONE
-  !CALL burger_runexample(2)
-  CALL test2_run()
+
+  ! Run Test(run_reference, run_error)
+  ! CALL burger_runexample(2, .FALSE., .FALSE.)
+  ! CALL test2_run(.false., .true.)
 
 END PROGRAM EntropyStableFD
