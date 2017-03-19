@@ -1,0 +1,83 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+title: "Test 2"
+output: html_notebook
+---
+
+Loading required libraries
+
+```{r, message=FALSE}
+library(rio)
+library(ggplot2)
+library(ggthemes)
+library(reshape2)
+library(rbokeh)
+library(plotly)
+```
+
+Set default directory
+```{r}
+setwd("~/code/EntropyStableFD/bin")
+```
+
+##Plot of single series:
+Read data
+```{r}
+data = import('test_3_100.txt')
+```
+Plot:
+```{r}
+ggplot(data=data, aes(x=X, y=MS)) +
+  geom_line()+geom_point()
+```
+
+##Plot multiple series
+Reshape database:
+```{r}
+melted <- melt(data, id="X")
+```
+Add reference solution:
+```{r}
+ref = import('test_3_reference.txt')
+```
+Plot:
+```{r}
+figure(data= melted) %>%
+  ly_lines(X, value, color = variable) %>%
+  ly_points(x, REF, data = ref, legend = "REF", size =2)
+```
+
+```{r}
+ggplot() +
+  geom_line(data=melted, aes(x=x, y=value, color=variable)) +
+  geom_line(data=ref, aes(x=x, y=REF)) +
+  scale_color_ptol("cyl") +
+  theme_minimal()
+```
+
+#Errores
+
+## Test 1 a
+
+```{r}
+errores = import('test_2_errors.txt', head = TRUE)
+errores
+```
+```{r}
+Order = log2(errores[,2:4]/errores[,3:5])
+Order
+```---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

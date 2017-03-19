@@ -70,7 +70,8 @@ subroutine update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
       KK(j) = DiffMat(uold(j))
     END DO
     uleft = uold(1); uright = uold(N)
-    fplusleft = Flux(uleft); fminusright = Flux(uright)
+    fplusleft = merge(Flux(uleft),0.0_dp,uleft > 0.0_dp)
+    fminusright = merge(0.0_dp,Flux(uright),uright > 0.0_dp)
     Kleft = DiffMat(uleft); Kright = DiffMat(uright)
 
     j = 1
