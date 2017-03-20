@@ -15,8 +15,8 @@ PROGRAM EntropyStableFD
   IMPLICIT NONE
 
   ! Run Test(run_reference, run_error)
-  ! CALL burger_runexample(2, .FALSE., .FALSE.)
-  ! CALL test2_run(.false., .true.)
-  CALL test3_run(.false., .false.)
+  CALL burger_runexample(1, .true., .true.)
+  !CALL test2_run(.false., .true.)
+  ! CALL test3_run(.false., .false.)
 
 END PROGRAM EntropyStableFD

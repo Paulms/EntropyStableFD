@@ -183,7 +183,7 @@ FUNCTION flux(uu) RESULT(ff)
   !Flux in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
   REAL(kind = dp)              :: ff
-  if (abs(uu) < precision) THEN
+  if (abs(uu**2) < precision) THEN
     ff = 0.0_dp
   ELSE
     ff = 0.5*uu**2
@@ -194,7 +194,7 @@ FUNCTION DiffMat(uu) RESULT(kk)
   !Conservative diffusion in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
   REAL(kind = dp)              :: kk
-  if (abs(uu) < precision) THEN
+  if (abs(uu**2) < precision) THEN
     kk = 0.0_dp
   ELSE
     kk = mu*uu**2
