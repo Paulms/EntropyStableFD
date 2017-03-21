@@ -1,0 +1,44 @@
+---
+title: "Test 4"
+output: html_notebook
+---
+
+Loading required libraries
+
+```{r, message=FALSE}
+library(rio)
+library(ggplot2)
+library(ggthemes)
+library(reshape2)
+library(rbokeh)
+library(plotly)
+```
+
+Set default directory
+```{r}
+setwd("~/code/EntropyStableFD/bin")
+```
+
+##Plot of single series:
+Read data
+```{r}
+data = import('test_4_1000.txt')
+```
+##Plot multiple series
+Reshape database:
+```{r}
+melted <- melt(data, id="X")
+```
+
+Plot:
+```{r}
+figure(data= data) %>%
+  ly_lines(X, u1, color = "blue", legend="u1", type=2) %>%
+  ly_lines(X, ESCNu1, legen = "ESCN u1")
+```
+
+```{r}
+figure(data= data, legend_location = "top_left") %>%
+  ly_lines(X, u2, color = "blue", legend="u2", type=2) %>%
+  ly_lines(X, ESCNu2, legen = "ESCN u2")
+```

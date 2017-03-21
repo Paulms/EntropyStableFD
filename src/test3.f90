@@ -140,6 +140,7 @@ FUNCTION flux(uu) RESULT(ff)
   END IF
 END FUNCTION flux
 
+!k(u)
 FUNCTION DiffFlux(uu) RESULT(kk)
   !Conservative diffusion flux in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu(:)
@@ -157,6 +158,7 @@ FUNCTION DiffFlux(uu) RESULT(kk)
   END DO
 END FUNCTION DiffFlux
 
+!K(x)
 FUNCTION DiffMat(uu) RESULT(kk)
   !Conservative diffusion in Burguer's Equation
   REAL(kind = dp), INTENT(IN)  :: uu
