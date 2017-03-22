@@ -13,12 +13,14 @@ PROGRAM EntropyStableFD
   USE test2
   USE test3
   USE test4
+  USE test5
   IMPLICIT NONE
 
   ! Run Test(run_reference, run_error)
   ! CALL burger_runexample(1, .true., .true.)
   ! CALL test2_run(.false., .true.)
   ! CALL test3_run(.false., .false.)
-  CALL test4_run()
+  ! CALL test4_run()
+  CALL test5_run(.false.)
 
 END PROGRAM EntropyStableFD

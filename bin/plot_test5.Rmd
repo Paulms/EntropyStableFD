@@ -1,0 +1,61 @@
+---
+title: "Test 5"
+output: html_notebook
+---
+
+Loading required libraries
+
+```{r, message=FALSE}
+library(rio)
+library(ggplot2)
+library(ggthemes)
+library(reshape2)
+library(rbokeh)
+```
+
+Set default directory
+```{r}
+setwd("~/code/EntropyStableFD/bin")
+```
+
+##Plot of single series:
+Read data
+```{r}
+data = import('test_5_500.txt')
+```
+Add reference solution:
+```{r}
+ref = import('test_5_reference.txt')
+```
+##Plot multiple series
+Reshape database:
+```{r}
+melted <- melt(data, id="X")
+```
+
+Plot:
+```{r}
+figure(data= data) %>%
+  ly_lines(X, h0, color = "blue", legend="ho", type=2) %>%
+  ly_points(X, ESCNh, legend = "ESCN h", size =5, alpha=0.8) %>%
+  ly_lines(X, REFh, data = ref, legend = "REFh")
+```
+
+```{r}
+figure(data= data, legend_location = "top_left") %>%
+  ly_lines(X, q0, color = "blue", legend="q0", type=2) %>%
+  ly_points(X, ESCNq, legen = "ESCN q", size =5, alpha=0.8) %>%
+  ly_lines(X, REFq, data = ref, legend = "REFq")
+```
+```{r}
+ggplot(data=data) +
+  geom_line(aes(x=X, y=h0), linetype=2) +
+  geom_line(aes(x=X, y=ESCNh), colour = "blue")+
+  geom_point(aes(x=X, y=ESCNh), colour = "blue", alpha=0.4)
+```
+```{r}
+ggplot(data=data) +
+  geom_line(aes(x=X, y=q0), linetype=2) +
+  geom_line(aes(x=X, y=ESCNq), colour = "green4")+
+  geom_point(aes(x=X, y=ESCNq), colour = "green4", alpha=0.4)
+```

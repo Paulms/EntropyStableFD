@@ -42,3 +42,15 @@ figure(data= data, legend_location = "top_left") %>%
   ly_lines(X, u2, color = "blue", legend="u2", type=2) %>%
   ly_lines(X, ESCNu2, legen = "ESCN u2")
 ```
+```{r}
+ggplot(data=data) +
+  geom_line(aes(x=X, y=u1), linetype=2) +
+  geom_line(aes(x=X, y=ESCNu1), colour = "blue")+
+  geom_point(aes(x=X, y=ESCNu1), colour = "blue", alpha=0.4)
+```
+```{r}
+ggplot(data=data) +
+  geom_line(aes(x=X, y=u2), linetype=2) +
+  geom_line(aes(x=X, y=ESCNu2), colour = "green4")+
+  geom_point(aes(x=X, y=ESCNu2), colour = "green4", alpha=0.4)
+```
