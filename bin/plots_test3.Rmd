@@ -1,8 +1,5 @@
 ---
-title: "R Notebook"
-output: html_notebook
----
-title: "Test 2"
+title: "Test 3"
 output: html_notebook
 ---
 
@@ -45,8 +42,8 @@ ref = import('test_3_reference.txt')
 Plot:
 ```{r}
 figure(data= melted) %>%
-  ly_lines(X, value, color = variable) %>%
-  ly_points(x, REF, data = ref, legend = "REF", size =2)
+  ly_points(X, value, glyph = variable, color= variable, size=5) %>%
+  ly_lines(x, REF, data = ref, legend = "REF")
 ```
 
 ```{r}
@@ -62,10 +59,12 @@ ggplot() +
 ## Test 1 a
 
 ```{r}
-errores = import('test_2_errors.txt', head = TRUE)
+errores = import('test_3_errors.txt', head = TRUE)
 errores
+#xtable(errores, display=c("d","s","g","g","g","g"), digits=6)
 ```
 ```{r}
 Order = log2(errores[,2:4]/errores[,3:5])
 Order
+#xtable(Order, display=c("d","g","g","g"), digits=6)
 ```

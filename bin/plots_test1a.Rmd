@@ -41,8 +41,8 @@ ref = import('test_1_reference.txt')
 Plot:
 ```{r}
 figure(data= melted) %>%
-  ly_lines(X, value, color = variable) %>%
-  ly_points(x, REF, data = ref, legend = "REF", size =2)
+  ly_points(X, value, glyph = variable, color= variable, size=5) %>%
+  ly_lines(x, REF, data = ref, legend = "REF")
 ```
 
 ```{r}
