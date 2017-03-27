@@ -263,12 +263,11 @@ library(plotly)</code></pre>
 </div>
 <div id="errores" class="section level1">
 <h1>Errores</h1>
-<div id="test-1-a" class="section level2">
-<h2>Test 1 a</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8zX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSlcbmtuaXRyOjprYWJsZShlcnJvcmVzKVxuYGBgIn0= -->
-<pre class="r"><code>errores = import('test_3_errors.txt', head = TRUE)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhzY2lwZW49LTIsIGRpZ2l0cz02KVxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8zX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSlcbmtuaXRyOjprYWJsZShlcnJvcmVzKVxuYGBgIn0= -->
+<pre class="r"><code>options(scipen=-2, digits=6)
+errores = import('test_3_errors.txt', head = TRUE)
 knitr::kable(errores)</code></pre>
 <!-- rnb-source-end -->
 <p>
@@ -294,24 +293,24 @@ knitr::kable(errores)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">MS</td>
-<td align="right">0.0015125</td>
-<td align="right">0.0007837</td>
-<td align="right">0.0003850</td>
-<td align="right">0.0002154</td>
+<td align="right">1.513e-03</td>
+<td align="right">7.840e-04</td>
+<td align="right">3.85e-04</td>
+<td align="right">2.15e-04</td>
 </tr>
 <tr class="even">
 <td align="left">ESC</td>
-<td align="right">0.0009270</td>
-<td align="right">0.0004399</td>
-<td align="right">0.0002013</td>
-<td align="right">0.0001030</td>
+<td align="right">9.270e-04</td>
+<td align="right">4.400e-04</td>
+<td align="right">2.01e-04</td>
+<td align="right">1.03e-04</td>
 </tr>
 <tr class="odd">
 <td align="left">ESC-0.3</td>
-<td align="right">0.0035061</td>
-<td align="right">0.0018529</td>
-<td align="right">0.0009569</td>
-<td align="right">0.0005447</td>
+<td align="right">3.506e-03</td>
+<td align="right">1.853e-03</td>
+<td align="right">9.57e-04</td>
+<td align="right">5.45e-04</td>
 </tr>
 </tbody>
 </table>
@@ -342,21 +341,21 @@ knitr::kable(Order)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">MS</td>
-<td align="right">0.9485871</td>
-<td align="right">1.0255953</td>
-<td align="right">0.8376031</td>
+<td align="right">0.948587</td>
+<td align="right">1.02560</td>
+<td align="right">0.837603</td>
 </tr>
 <tr class="even">
 <td align="left">ESC</td>
-<td align="right">1.0754050</td>
-<td align="right">1.1279297</td>
-<td align="right">0.9662687</td>
+<td align="right">1.075405</td>
+<td align="right">1.12793</td>
+<td align="right">0.966269</td>
 </tr>
 <tr class="odd">
 <td align="left">ESC-0.3</td>
-<td align="right">0.9201085</td>
-<td align="right">0.9532799</td>
-<td align="right">0.8129270</td>
+<td align="right">0.920109</td>
+<td align="right">0.95328</td>
+<td align="right">0.812927</td>
 </tr>
 </tbody>
 </table>
@@ -368,9 +367,8 @@ knitr::kable(Order)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAzIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKLS0tCgpMb2FkaW5nIHJlcXVpcmVkIGxpYnJhcmllcwoKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkocmlvKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoZ2d0aGVtZXMpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocmJva2VoKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgpTZXQgZGVmYXVsdCBkaXJlY3RvcnkKYGBge3J9CnNldHdkKCJ+L2NvZGUvRW50cm9weVN0YWJsZUZEL2JpbiIpCmBgYAoKIyNQbG90IG9mIHNpbmdsZSBzZXJpZXM6ClJlYWQgZGF0YQpgYGB7cn0KZGF0YSA9IGltcG9ydCgndGVzdF8zXzEwMC50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmdncGxvdChkYXRhPWRhdGEsIGFlcyh4PVgsIHk9TVMpKSArCiAgZ2VvbV9saW5lKCkrZ2VvbV9wb2ludCgpCmBgYAoKIyNQbG90IG11bHRpcGxlIHNlcmllcwpSZXNoYXBlIGRhdGFiYXNlOgpgYGB7cn0KbWVsdGVkIDwtIG1lbHQoZGF0YSwgaWQ9IlgiKQpgYGAKQWRkIHJlZmVyZW5jZSBzb2x1dGlvbjoKYGBge3J9CnJlZiA9IGltcG9ydCgndGVzdF8zX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCiMjIFRlc3QgMSBhCgpgYGB7cn0KZXJyb3JlcyA9IGltcG9ydCgndGVzdF8zX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSkKa25pdHI6OmthYmxlKGVycm9yZXMpCiN4dGFibGUoZXJyb3JlcywgZGlzcGxheT1jKCJkIiwicyIsImciLCJnIiwiZyIsImciKSwgZGlnaXRzPTYpCmBgYApgYGB7cn0KT3JkZXIgPSBjYmluZChvcmRlcj1lcnJvcmVzWywxXSxsb2cyKGVycm9yZXNbLDI6NF0vZXJyb3Jlc1ssMzo1XSkpCmtuaXRyOjprYWJsZShPcmRlcikKI3h0YWJsZShPcmRlciwgZGlzcGxheT1jKCJkIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGA=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAzIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKLS0tCgpMb2FkaW5nIHJlcXVpcmVkIGxpYnJhcmllcwoKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkocmlvKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoZ2d0aGVtZXMpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocmJva2VoKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgpTZXQgZGVmYXVsdCBkaXJlY3RvcnkKYGBge3J9CnNldHdkKCJ+L2NvZGUvRW50cm9weVN0YWJsZUZEL2JpbiIpCmBgYAoKIyNQbG90IG9mIHNpbmdsZSBzZXJpZXM6ClJlYWQgZGF0YQpgYGB7cn0KZGF0YSA9IGltcG9ydCgndGVzdF8zXzEwMC50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmdncGxvdChkYXRhPWRhdGEsIGFlcyh4PVgsIHk9TVMpKSArCiAgZ2VvbV9saW5lKCkrZ2VvbV9wb2ludCgpCmBgYAoKIyNQbG90IG11bHRpcGxlIHNlcmllcwpSZXNoYXBlIGRhdGFiYXNlOgpgYGB7cn0KbWVsdGVkIDwtIG1lbHQoZGF0YSwgaWQ9IlgiKQpgYGAKQWRkIHJlZmVyZW5jZSBzb2x1dGlvbjoKYGBge3J9CnJlZiA9IGltcG9ydCgndGVzdF8zX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCmBgYHtyfQpvcHRpb25zKHNjaXBlbj0tMiwgZGlnaXRzPTYpCmVycm9yZXMgPSBpbXBvcnQoJ3Rlc3RfM19lcnJvcnMudHh0JywgaGVhZCA9IFRSVUUpCmtuaXRyOjprYWJsZShlcnJvcmVzKQojeHRhYmxlKGVycm9yZXMsIGRpc3BsYXk9YygiZCIsInMiLCJnIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGAKYGBge3J9Ck9yZGVyID0gY2JpbmQob3JkZXI9ZXJyb3Jlc1ssMV0sbG9nMihlcnJvcmVzWywyOjRdL2Vycm9yZXNbLDM6NV0pKQprbml0cjo6a2FibGUoT3JkZXIpCiN4dGFibGUoT3JkZXIsIGRpc3BsYXk9YygiZCIsImciLCJnIiwiZyIpLCBkaWdpdHM9NikKYGBg</div>
 
 
 

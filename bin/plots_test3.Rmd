@@ -50,9 +50,8 @@ figure(data= melted) %>%
 
 #Errores
 
-## Test 1 a
-
 ```{r}
+options(scipen=-2, digits=6)
 errores = import('test_3_errors.txt', head = TRUE)
 knitr::kable(errores)
 #xtable(errores, display=c("d","s","g","g","g","g"), digits=6)

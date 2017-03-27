@@ -267,8 +267,9 @@ library(plotly)</code></pre>
 <h2>Test 1 a</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xYl9lcnJvcnMudHh0JywgaGVhZCA9IFRSVUUpXG5rbml0cjo6a2FibGUoZXJyb3JlcylcbmBgYCJ9 -->
-<pre class="r"><code>errores = import('test_1b_errors.txt', head = TRUE)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhzY2lwZW49LTIsIGRpZ2l0cz02KVxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xYl9lcnJvcnMudHh0JywgaGVhZCA9IFRSVUUpXG5rbml0cjo6a2FibGUoZXJyb3JlcylcbmBgYCJ9 -->
+<pre class="r"><code>options(scipen=-2, digits=6)
+errores = import('test_1b_errors.txt', head = TRUE)
 knitr::kable(errores)</code></pre>
 <!-- rnb-source-end -->
 <p>
@@ -296,43 +297,43 @@ knitr::kable(errores)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">MS</td>
-<td align="right">0.0063139</td>
-<td align="right">0.0033691</td>
-<td align="right">0.0017924</td>
-<td align="right">0.0009358</td>
-<td align="right">0.0004785</td>
+<td align="right">6.314e-03</td>
+<td align="right">3.369e-03</td>
+<td align="right">1.792e-03</td>
+<td align="right">9.36e-04</td>
+<td align="right">4.78e-04</td>
 </tr>
 <tr class="even">
 <td align="left">ESC</td>
-<td align="right">0.0019768</td>
-<td align="right">0.0005392</td>
-<td align="right">0.0001446</td>
-<td align="right">0.0000385</td>
-<td align="right">0.0000114</td>
+<td align="right">1.977e-03</td>
+<td align="right">5.390e-04</td>
+<td align="right">1.450e-04</td>
+<td align="right">3.90e-05</td>
+<td align="right">1.10e-05</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC</td>
-<td align="right">0.0017266</td>
-<td align="right">0.0004735</td>
-<td align="right">0.0001336</td>
-<td align="right">0.0000405</td>
-<td align="right">0.0000126</td>
+<td align="right">1.727e-03</td>
+<td align="right">4.740e-04</td>
+<td align="right">1.340e-04</td>
+<td align="right">4.00e-05</td>
+<td align="right">1.30e-05</td>
 </tr>
 <tr class="even">
 <td align="left">ESC2</td>
-<td align="right">0.0010684</td>
-<td align="right">0.0001856</td>
-<td align="right">0.0000488</td>
-<td align="right">0.0000152</td>
-<td align="right">0.0000072</td>
+<td align="right">1.068e-03</td>
+<td align="right">1.860e-04</td>
+<td align="right">4.900e-05</td>
+<td align="right">1.50e-05</td>
+<td align="right">7.00e-06</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC2</td>
-<td align="right">0.0010933</td>
-<td align="right">0.0002212</td>
-<td align="right">0.0000713</td>
-<td align="right">0.0000269</td>
-<td align="right">0.0000105</td>
+<td align="right">1.093e-03</td>
+<td align="right">2.210e-04</td>
+<td align="right">7.100e-05</td>
+<td align="right">2.70e-05</td>
+<td align="right">1.00e-05</td>
 </tr>
 </tbody>
 </table>
@@ -417,7 +418,7 @@ knitr::kable(Order)</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAxYiIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKTG9hZGluZyByZXF1aXJlZCBsaWJyYXJpZXMKCmBgYHtyLCBtZXNzYWdlPUZBTFNFfQpsaWJyYXJ5KHJpbykKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KGdndGhlbWVzKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHJib2tlaCkKbGlicmFyeShwbG90bHkpCmBgYAoKU2V0IGRlZmF1bHQgZGlyZWN0b3J5CmBgYHtyfQpzZXR3ZCgifi9jb2RlL0VudHJvcHlTdGFibGVGRC9iaW4iKQpgYGAKCiMjUGxvdCBvZiBzaW5nbGUgc2VyaWVzOgpSZWFkIGRhdGEKYGBge3J9CmRhdGEgPSBpbXBvcnQoJ3Rlc3RfMWJfNDAwLnR4dCcpCmBgYApQbG90OgpgYGB7cn0KZ2dwbG90KGRhdGE9ZGF0YSwgYWVzKHg9WCwgeT1NUykpICsKICBnZW9tX2xpbmUoKStnZW9tX3BvaW50KCkKYGBgCgojI1Bsb3QgbXVsdGlwbGUgc2VyaWVzClJlc2hhcGUgZGF0YWJhc2U6CmBgYHtyfQptZWx0ZWQgPC0gbWVsdChkYXRhLCBpZD0iWCIpCmBgYApBZGQgcmVmZXJlbmNlIHNvbHV0aW9uOgpgYGB7cn0KcmVmID0gaW1wb3J0KCd0ZXN0XzFiX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCiMjIFRlc3QgMSBhCgpgYGB7cn0KZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xYl9lcnJvcnMudHh0JywgaGVhZCA9IFRSVUUpCmtuaXRyOjprYWJsZShlcnJvcmVzKQojeHRhYmxlKGVycm9yZXMsIGRpc3BsYXk9YygiZCIsInMiLCJnIiwiZyIsImciLCJnIiwiZyIpLCBkaWdpdHM9NikKYGBgCmBgYHtyfQpOID0gbGVuZ3RoKGVycm9yZXMpCk9yZGVyID0gY2JpbmQob3JkZXI9ZXJyb3Jlc1ssMV0sbG9nMihlcnJvcmVzWywyOihOLTEpXS9lcnJvcmVzWywzOk5dKSkKa25pdHI6OmthYmxlKE9yZGVyKQojeHRhYmxlKE9yZGVyLCBkaXNwbGF5PWMoImQiLCJnIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGA=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAxYiIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKTG9hZGluZyByZXF1aXJlZCBsaWJyYXJpZXMKCmBgYHtyLCBtZXNzYWdlPUZBTFNFfQpsaWJyYXJ5KHJpbykKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KGdndGhlbWVzKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHJib2tlaCkKbGlicmFyeShwbG90bHkpCmBgYAoKU2V0IGRlZmF1bHQgZGlyZWN0b3J5CmBgYHtyfQpzZXR3ZCgifi9jb2RlL0VudHJvcHlTdGFibGVGRC9iaW4iKQpgYGAKCiMjUGxvdCBvZiBzaW5nbGUgc2VyaWVzOgpSZWFkIGRhdGEKYGBge3J9CmRhdGEgPSBpbXBvcnQoJ3Rlc3RfMWJfNDAwLnR4dCcpCmBgYApQbG90OgpgYGB7cn0KZ2dwbG90KGRhdGE9ZGF0YSwgYWVzKHg9WCwgeT1NUykpICsKICBnZW9tX2xpbmUoKStnZW9tX3BvaW50KCkKYGBgCgojI1Bsb3QgbXVsdGlwbGUgc2VyaWVzClJlc2hhcGUgZGF0YWJhc2U6CmBgYHtyfQptZWx0ZWQgPC0gbWVsdChkYXRhLCBpZD0iWCIpCmBgYApBZGQgcmVmZXJlbmNlIHNvbHV0aW9uOgpgYGB7cn0KcmVmID0gaW1wb3J0KCd0ZXN0XzFiX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCiMjIFRlc3QgMSBhCgpgYGB7cn0Kb3B0aW9ucyhzY2lwZW49LTIsIGRpZ2l0cz02KQplcnJvcmVzID0gaW1wb3J0KCd0ZXN0XzFiX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSkKa25pdHI6OmthYmxlKGVycm9yZXMpCiN4dGFibGUoZXJyb3JlcywgZGlzcGxheT1jKCJkIiwicyIsImciLCJnIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGAKYGBge3J9Ck4gPSBsZW5ndGgoZXJyb3JlcykKT3JkZXIgPSBjYmluZChvcmRlcj1lcnJvcmVzWywxXSxsb2cyKGVycm9yZXNbLDI6KE4tMSldL2Vycm9yZXNbLDM6Tl0pKQprbml0cjo6a2FibGUoT3JkZXIpCiN4dGFibGUoT3JkZXIsIGRpc3BsYXk9YygiZCIsImciLCJnIiwiZyIsImciKSwgZGlnaXRzPTYpCmBgYA==</div>
 
 
 

@@ -58,9 +58,8 @@ ggplot() +
 
 #Errores
 
-## Test 1 a
-
 ```{r}
+options(scipen=-2, digits=6)
 errores = import('test_2_errors.txt', head = TRUE)
 knitr::kable(errores)
 ```

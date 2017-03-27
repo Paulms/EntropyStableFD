@@ -267,8 +267,9 @@ library(xtable)</code></pre>
 <h2>Test 1 a</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSlcbmtuaXRyOjprYWJsZShlcnJvcmVzKVxuYGBgIn0= -->
-<pre class="r"><code>errores = import('test_1_errors.txt', head = TRUE)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhzY2lwZW49LTIsIGRpZ2l0cz02KVxuZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSlcbmtuaXRyOjprYWJsZShlcnJvcmVzKVxuYGBgIn0= -->
+<pre class="r"><code>options(scipen=-2, digits=6)
+errores = import('test_1_errors.txt', head = TRUE)
 knitr::kable(errores)</code></pre>
 <!-- rnb-source-end -->
 <p>
@@ -296,43 +297,43 @@ knitr::kable(errores)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">MS</td>
-<td align="right">0.0037358</td>
-<td align="right">0.0019993</td>
-<td align="right">0.0010704</td>
-<td align="right">0.0005559</td>
-<td align="right">0.0002839</td>
+<td align="right">3.736e-03</td>
+<td align="right">1.999e-03</td>
+<td align="right">1.07e-03</td>
+<td align="right">5.56e-04</td>
+<td align="right">2.84e-04</td>
 </tr>
 <tr class="even">
 <td align="left">ESC</td>
-<td align="right">0.0010924</td>
-<td align="right">0.0003413</td>
-<td align="right">0.0001106</td>
-<td align="right">0.0000365</td>
-<td align="right">0.0000071</td>
+<td align="right">1.092e-03</td>
+<td align="right">3.410e-04</td>
+<td align="right">1.11e-04</td>
+<td align="right">3.60e-05</td>
+<td align="right">7.00e-06</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC</td>
-<td align="right">0.0010950</td>
-<td align="right">0.0003416</td>
-<td align="right">0.0001106</td>
-<td align="right">0.0000364</td>
-<td align="right">0.0000071</td>
+<td align="right">1.095e-03</td>
+<td align="right">3.420e-04</td>
+<td align="right">1.11e-04</td>
+<td align="right">3.60e-05</td>
+<td align="right">7.00e-06</td>
 </tr>
 <tr class="even">
 <td align="left">ESC2</td>
-<td align="right">0.0002554</td>
-<td align="right">0.0001671</td>
-<td align="right">0.0000875</td>
-<td align="right">0.0000035</td>
-<td align="right">0.0000056</td>
+<td align="right">2.550e-04</td>
+<td align="right">1.670e-04</td>
+<td align="right">8.80e-05</td>
+<td align="right">4.00e-06</td>
+<td align="right">6.00e-06</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC2</td>
-<td align="right">0.0002580</td>
-<td align="right">0.0001671</td>
-<td align="right">0.0000875</td>
-<td align="right">0.0000036</td>
-<td align="right">0.0000056</td>
+<td align="right">2.580e-04</td>
+<td align="right">1.670e-04</td>
+<td align="right">8.80e-05</td>
+<td align="right">4.00e-06</td>
+<td align="right">6.00e-06</td>
 </tr>
 </tbody>
 </table>
@@ -372,38 +373,38 @@ knitr::kable(Order)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">MS</td>
-<td align="right">0.9018915</td>
-<td align="right">0.9013118</td>
-<td align="right">0.9453064</td>
-<td align="right">0.9694340</td>
+<td align="right">0.901892</td>
+<td align="right">0.901312</td>
+<td align="right">0.945306</td>
+<td align="right">0.969434</td>
 </tr>
 <tr class="even">
 <td align="left">ESC</td>
-<td align="right">1.6783680</td>
-<td align="right">1.6252575</td>
-<td align="right">1.6005092</td>
-<td align="right">2.3549299</td>
+<td align="right">1.678368</td>
+<td align="right">1.625257</td>
+<td align="right">1.600509</td>
+<td align="right">2.354930</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC</td>
-<td align="right">1.6804685</td>
-<td align="right">1.6269273</td>
-<td align="right">1.6016445</td>
-<td align="right">2.3538744</td>
+<td align="right">1.680469</td>
+<td align="right">1.626927</td>
+<td align="right">1.601645</td>
+<td align="right">2.353874</td>
 </tr>
 <tr class="even">
 <td align="left">ESC2</td>
-<td align="right">0.6119413</td>
-<td align="right">0.9327844</td>
-<td align="right">4.6361733</td>
-<td align="right">-0.6665376</td>
+<td align="right">0.611941</td>
+<td align="right">0.932784</td>
+<td align="right">4.636173</td>
+<td align="right">-0.666538</td>
 </tr>
 <tr class="odd">
 <td align="left">ESNC2</td>
-<td align="right">0.6271267</td>
-<td align="right">0.9324909</td>
-<td align="right">4.6152683</td>
-<td align="right">-0.6456063</td>
+<td align="right">0.627127</td>
+<td align="right">0.932491</td>
+<td align="right">4.615268</td>
+<td align="right">-0.645606</td>
 </tr>
 </tbody>
 </table>
@@ -417,7 +418,7 @@ knitr::kable(Order)</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAxIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKLS0tCgpMb2FkaW5nIHJlcXVpcmVkIGxpYnJhcmllcwoKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkocmlvKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoZ2d0aGVtZXMpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocmJva2VoKQpsaWJyYXJ5KHh0YWJsZSkKYGBgCgpTZXQgZGVmYXVsdCBkaXJlY3RvcnkKYGBge3J9CnNldHdkKCJ+L2NvZGUvRW50cm9weVN0YWJsZUZEL2JpbiIpCmBgYAoKIyNQbG90IG9mIHNpbmdsZSBzZXJpZXM6ClJlYWQgZGF0YQpgYGB7cn0KZGF0YSA9IGltcG9ydCgndGVzdF8xXzQwMC50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmdncGxvdChkYXRhPWRhdGEsIGFlcyh4PVgsIHk9TVMpKSArCiAgZ2VvbV9saW5lKCkrZ2VvbV9wb2ludCgpCmBgYAoKIyNQbG90IG11bHRpcGxlIHNlcmllcwpSZXNoYXBlIGRhdGFiYXNlOgpgYGB7cn0KbWVsdGVkIDwtIG1lbHQoZGF0YSwgaWQ9IlgiKQpgYGAKQWRkIHJlZmVyZW5jZSBzb2x1dGlvbjoKYGBge3J9CnJlZiA9IGltcG9ydCgndGVzdF8xX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCiMjIFRlc3QgMSBhCgpgYGB7cn0KZXJyb3JlcyA9IGltcG9ydCgndGVzdF8xX2Vycm9ycy50eHQnLCBoZWFkID0gVFJVRSkKa25pdHI6OmthYmxlKGVycm9yZXMpCiN4dGFibGUoZXJyb3JlcywgZGlzcGxheT1jKCJkIiwicyIsImciLCJnIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGAKYGBge3J9Ck4gPSBsZW5ndGgoZXJyb3JlcykKT3JkZXIgPSBjYmluZChvcmRlcj1lcnJvcmVzWywxXSxsb2cyKGVycm9yZXNbLDI6KE4tMSldL2Vycm9yZXNbLDM6Tl0pKQprbml0cjo6a2FibGUoT3JkZXIpCiN4dGFibGUoT3JkZXIsIGRpc3BsYXk9YygicyIsImQiLCJnIiwiZyIsImciLCJnIiksIGRpZ2l0cz02KQpgYGA=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCAxIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKLS0tCgpMb2FkaW5nIHJlcXVpcmVkIGxpYnJhcmllcwoKYGBge3IsIG1lc3NhZ2U9RkFMU0V9CmxpYnJhcnkocmlvKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoZ2d0aGVtZXMpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkocmJva2VoKQpsaWJyYXJ5KHh0YWJsZSkKYGBgCgpTZXQgZGVmYXVsdCBkaXJlY3RvcnkKYGBge3J9CnNldHdkKCJ+L2NvZGUvRW50cm9weVN0YWJsZUZEL2JpbiIpCmBgYAoKIyNQbG90IG9mIHNpbmdsZSBzZXJpZXM6ClJlYWQgZGF0YQpgYGB7cn0KZGF0YSA9IGltcG9ydCgndGVzdF8xXzQwMC50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmdncGxvdChkYXRhPWRhdGEsIGFlcyh4PVgsIHk9TVMpKSArCiAgZ2VvbV9saW5lKCkrZ2VvbV9wb2ludCgpCmBgYAoKIyNQbG90IG11bHRpcGxlIHNlcmllcwpSZXNoYXBlIGRhdGFiYXNlOgpgYGB7cn0KbWVsdGVkIDwtIG1lbHQoZGF0YSwgaWQ9IlgiKQpgYGAKQWRkIHJlZmVyZW5jZSBzb2x1dGlvbjoKYGBge3J9CnJlZiA9IGltcG9ydCgndGVzdF8xX3JlZmVyZW5jZS50eHQnKQpgYGAKUGxvdDoKYGBge3J9CmZpZ3VyZShkYXRhPSBtZWx0ZWQpICU+JQogIGx5X3BvaW50cyhYLCB2YWx1ZSwgZ2x5cGggPSB2YXJpYWJsZSwgY29sb3I9IHZhcmlhYmxlLCBzaXplPTUpICU+JQogIGx5X2xpbmVzKHgsIFJFRiwgZGF0YSA9IHJlZiwgbGVnZW5kID0gIlJFRiIpCmBgYAoKI0Vycm9yZXMKCiMjIFRlc3QgMSBhCgpgYGB7cn0Kb3B0aW9ucyhzY2lwZW49LTIsIGRpZ2l0cz02KQplcnJvcmVzID0gaW1wb3J0KCd0ZXN0XzFfZXJyb3JzLnR4dCcsIGhlYWQgPSBUUlVFKQprbml0cjo6a2FibGUoZXJyb3JlcykKI3h0YWJsZShlcnJvcmVzLCBkaXNwbGF5PWMoImQiLCJzIiwiZyIsImciLCJnIiwiZyIsImciKSwgZGlnaXRzPTYpCmBgYApgYGB7cn0KTiA9IGxlbmd0aChlcnJvcmVzKQpPcmRlciA9IGNiaW5kKG9yZGVyPWVycm9yZXNbLDFdLGxvZzIoZXJyb3Jlc1ssMjooTi0xKV0vZXJyb3Jlc1ssMzpOXSkpCmtuaXRyOjprYWJsZShPcmRlcikKI3h0YWJsZShPcmRlciwgZGlzcGxheT1jKCJzIiwiZCIsImciLCJnIiwiZyIsImciKSwgZGlnaXRzPTYpCmBgYA==</div>
 
 
 
