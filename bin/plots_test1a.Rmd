@@ -1,6 +1,8 @@
 ---
 title: "Test 1"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 Loading required libraries
@@ -11,6 +13,7 @@ library(ggplot2)
 library(ggthemes)
 library(reshape2)
 library(rbokeh)
+library(xtable)
 ```
 
 Set default directory
@@ -45,14 +48,6 @@ figure(data= melted) %>%
   ly_lines(x, REF, data = ref, legend = "REF")
 ```
 
-```{r}
-ggplot() +
-  geom_line(data=melted, aes(x=x, y=value, color=variable)) +
-  geom_line(data=ref, aes(x=x, y=REF)) +
-  scale_color_ptol("cyl") +
-  theme_minimal()
-```
-
 #Errores
 
 ## Test 1 a
@@ -60,9 +55,11 @@ ggplot() +
 ```{r}
 errores = import('test_1_errors.txt', head = TRUE)
 errores
+#xtable(errores, display=c("d","s","g","g","g","g","g"), digits=6)
 ```
 ```{r}
 N = length(errores)
 Order = log2(errores[,2:(N-1)]/errores[,3:N])
 Order
+#xtable(Order, display=c("d","g","g","g","g"), digits=6)
 ```

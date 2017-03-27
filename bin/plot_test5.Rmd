@@ -1,6 +1,8 @@
 ---
 title: "Test 5"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 Loading required libraries

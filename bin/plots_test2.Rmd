@@ -42,8 +42,8 @@ ref = import('test_2_reference.txt')
 Plot:
 ```{r}
 figure(data= melted) %>%
-  ly_points(X, value, glyph = variable, color= variable, size=5) %>%
-  ly_lines(x, REF, data = ref, legend = "REF")
+  ly_lines(X, value, color = variable) %>%
+  ly_points(x, REF, data = ref, legend = "REF", size =2)
 ```
 
 ```{r}
@@ -61,10 +61,8 @@ ggplot() +
 ```{r}
 errores = import('test_2_errors.txt', head = TRUE)
 errores
-#xtable(errores, display=c("d","s","g","g","g","g"), digits=6)
 ```
 ```{r}
 Order = log2(errores[,2:4]/errores[,3:5])
 Order
-#xtable(Order, display=c("d","g","g","g"), digits=6)
 ```
