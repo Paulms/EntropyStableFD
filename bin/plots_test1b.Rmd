@@ -54,12 +54,12 @@ figure(data= melted) %>%
 
 ```{r}
 errores = import('test_1b_errors.txt', head = TRUE)
-errores
+knitr::kable(errores)
 #xtable(errores, display=c("d","s","g","g","g","g","g"), digits=6)
 ```
 ```{r}
 N = length(errores)
-Order = log2(errores[,2:(N-1)]/errores[,3:N])
-Order
+Order = cbind(order=errores[,1],log2(errores[,2:(N-1)]/errores[,3:N]))
+knitr::kable(Order)
 #xtable(Order, display=c("d","g","g","g","g"), digits=6)
 ```

@@ -1,6 +1,8 @@
 ---
 title: "Test 2"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 Loading required libraries
@@ -60,9 +62,9 @@ ggplot() +
 
 ```{r}
 errores = import('test_2_errors.txt', head = TRUE)
-errores
+knitr::kable(errores)
 ```
 ```{r}
-Order = log2(errores[,2:4]/errores[,3:5])
-Order
+Order = cbind(order=errores[,1],log2(errores[,2:4]/errores[,3:5]))
+knitr::kable(Order)
 ```
