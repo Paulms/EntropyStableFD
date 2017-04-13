@@ -36,7 +36,7 @@ subroutine test4_run()
   results(:,1) = xx
   results(:,2) = uinit(:,1)
   results(:,3) = uinit(:,2)
-  CALL Entropy_NonConservative_nd(FORWARD_EULER, .FALSE., uu, N, 2, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp) !ESNC2
+  CALL Entropy_NonConservative_nd(FORWARD_EULER, .FALSE., uu, N, 2, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp, ZERO_FLUX) !ESNC2
   results(:,4) = uu(:,1)
   results(:,5) = uu(:,2)
   CALL save_matrix(results, names, name, 0)

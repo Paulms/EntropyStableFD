@@ -39,7 +39,7 @@ subroutine test3_run(run_ref, run_err)
     ALLOCATE(results(N, ntests+1), names(ntests+1))
     names = ['x    ', 'REF  ']
     results(:,1) = xx
-    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC-0.2
+    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC-0.2
     results(:,2) = uu
     CALL save_matrix(results, names, name, 0)
     DEALLOCATE(results, uu, names, uinit, xx)
@@ -64,15 +64,15 @@ subroutine test3_run(run_ref, run_err)
       N = steps(i)
       print *, "Starting numerical tests with N = ", N
       CALL setup_problem(dx, N, xx, uu, uinit)
-      CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
+      CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt, ZERO_FLUX)  !MS
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(2, i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC
+      CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(3, i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.3_dp*dx) !ESNC
+      CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.3_dp*dx, ZERO_FLUX) !ESNC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(4, i) = error
       uu = uinit; error = 0.0_dp
@@ -92,13 +92,13 @@ subroutine test3_run(run_ref, run_err)
   names = ['X       ', 'u0      ','MS      ', 'ESC     ', 'ESC-0.3 ']
   results(:,1) = xx
   results(:,2) = uinit
-  CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
+  CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt, ZERO_FLUX)  !MS
   results(:,3) = uu
   uu = uinit
-  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC-0.2
+  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC-0.2
   results(:,4) = uu
   uu = uinit
-  CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.3_dp*dx) !ESNC-0.2
+  CALL Entropy_Conservative(FORWARD_EULER, .TRUE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.3_dp*dx, ZERO_FLUX) !ESNC-0.2
   results(:,5) = uu
   CALL save_matrix(results, names, name, 0)
   !CALL plot_results(uu, uinit, xx, name)

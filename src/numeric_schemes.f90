@@ -9,8 +9,8 @@ IMPLICIT NONE
     end subroutine
   end interface
 CONTAINS
-subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
-  INTEGER                   :: time_scheme
+subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt, boundary)
+  INTEGER                   :: time_scheme, boundary
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, CFL, limit, Tend
   REAL(kind = dp)           :: uu(:), tt
@@ -28,13 +28,13 @@ subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
     CALL cdt(uold, CFL, dx, dt)
     !Engquist-Osher Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
+      CALL update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat, boundary)
     !Engquist-Osher Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_EO(utemp, uold, N, dx, dt, Flux, DiffMat)
+      CALL update_u_EO(utemp, uold, N, dx, dt, Flux, DiffMat, boundary)
       !SECOND STEP
-      CALL update_u_EO(utemp2, utemp, N, dx, dt, Flux, DiffMat)
+      CALL update_u_EO(utemp2, utemp, N, dx, dt, Flux, DiffMat, boundary)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -49,11 +49,11 @@ subroutine Engquist_Osher(time_scheme, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt)
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Engquist_Osher
 
-subroutine update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
+subroutine update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat, boundary)
     REAL(kind = dp), INTENT(IN)   :: dx, dt
-    REAL(kind = dp)               :: uu(:), uold(:)
+    REAL(kind = dp)               :: flag, uu(:), uold(:)
     REAL(kind = dp), ALLOCATABLE  :: fplus(:), fminus(:), KK(:)
-    INTEGER                       :: N, j
+    INTEGER                       :: N, j, boundary
     REAL(kind = dp)               :: fplusleft, fminusright
     REAL(kind = dp)               :: Kleft, Kright, uleft, uright
     REAL(kind = dp),external      :: Flux, DiffMat
@@ -69,26 +69,33 @@ subroutine update_u_EO(uu, uold, N, dx, dt, Flux, DiffMat)
       END IF
       KK(j) = DiffMat(uold(j))
     END DO
-    uleft = uold(1); uright = uold(N)
+    ! Apply boundary conditions
+    if (boundary==ZERO_FLUX) THEN
+      uleft = uold(1); uright = uold(N)
+      flag = 0.0
+    ELSE
+      uleft = uold(N); uright = uold(1)
+      flag = 1.0
+    end if
     fplusleft = merge(Flux(uleft),0.0_dp,uleft > 0.0_dp)
     fminusright = merge(0.0_dp,Flux(uright),uright > 0.0_dp)
     Kleft = DiffMat(uleft); Kright = DiffMat(uright)
 
     j = 1
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplusleft-fminus(j)) +&
+    uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - flag*(fplusleft+fminus(j))) +&
     dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft)
     DO j = 2,(N-1)
       uu(j) = uold(j) - dt/dx * (fplus(j) + fminus(j+1) - fplus(j-1)-fminus(j)) +&
       dt/dx**2*(KK(j+1) - 2*KK(j) + KK(j-1))
     END DO
     j = N
-    uu(j) = uold(j) - dt/dx * (fplus(j) + fminusright - fplus(j-1)-fminus(j)) +&
+    uu(j) = uold(j) - dt/dx * (flag*(fplus(j) + fminusright) - fplus(j-1)-fminus(j)) +&
     dt/dx**2*(Kright - 2*KK(j) + KK(j-1))
     DEALLOCATE(fplus, fminus, KK)
 end subroutine update_u_EO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Entropy Stable Scheme, conservative diffusion
-subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt, epsilon)
-  INTEGER                       :: time_scheme
+subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, DiffMat, Cdt, epsilon, boundary)
+  INTEGER                       :: time_scheme, boundary
   INTEGER                       :: N, percentage
   REAL(kind = dp)               :: dx, dt, limit, Tend, CFL
   REAL(kind = dp)               :: uu(:), tt
@@ -110,13 +117,13 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, C
     CALL cdt(uold, CFL, dx, dt)
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
+      CALL update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat, boundary)
     !Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_EC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
+      CALL update_u_EC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat, boundary)
       !SECOND STEP
-      CALL update_u_EC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
+      CALL update_u_EC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat, boundary)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -131,11 +138,11 @@ subroutine Entropy_Conservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, C
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_Conservative
 
-subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat)
+subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, DiffMat, boundary)
     REAL(kind = dp)               :: epsilon, dx, dt
-    REAL(kind = dp)               :: uu(:), uold(:)
+    REAL(kind = dp)               :: flag,uu(:), uold(:)
     REAL(kind = dp), ALLOCATABLE  :: KK(:)
-    INTEGER                       :: N, j
+    INTEGER                       :: N, j, boundary
     REAL(kind = dp)               :: uleft, uright
     REAL(kind = dp)               :: Kleft, Kright
     LOGICAL                       :: Extra_Viscosity
@@ -143,8 +150,14 @@ subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, Diff
     !Allocate vectors
     ALLOCATE(KK(N))
     KK = 0.0_dp
-    ! Update ghost cells
-    uleft = uold(1); uright = uold(N)
+    ! Apply boundary conditions
+    if (boundary==ZERO_FLUX) THEN
+      uleft = uold(1); uright = uold(N)
+      flag = 0.0
+    ELSE
+      uleft = uold(N); uright = uold(1)
+      flag = 1.0
+    end if
     Kleft = DiffMat(uleft); Kright = DiffMat(uright)
 
     ! Compute diffusion flux
@@ -153,7 +166,7 @@ subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, Diff
     END DO
 
     j = 1
-    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
+    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-flag*Flux(uleft, uold(j))) +&
     dt/dx**2*(KK(j+1) - 2*KK(j) + Kleft) +&
     epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uleft,0.0_dp,Extra_Viscosity)
     DO j = 2,(N-1)
@@ -162,15 +175,15 @@ subroutine update_u_EC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, Diff
     epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
     END DO
     j = N
-    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
+    uu(j) = uold(j) - dt/dx * (flag*Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
     dt/dx**2*(Kright - 2*KK(j) + KK(j-1))+&
     epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
 
     DEALLOCATE(KK)
 end subroutine update_u_EC
 !!!!!!!!!!!!!!!!!!!!!!!!!11 Entropy Stable Scheme, non conservative Diffusion
-subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, KK, cdt, epsilon)
-  INTEGER                   :: time_scheme
+subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx, CFL, Flux, KK, cdt, epsilon, boundary)
+  INTEGER                   :: time_scheme, boundary
   INTEGER                   :: N, percentage
   REAL(kind = dp)           :: dx, dt, limit, CFL, Tend
   REAL(kind = dp)           :: uu(:), tt
@@ -190,13 +203,13 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
     CALL cdt(uold, CFL, dx, dt)
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
+      CALL update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK, boundary)
       !Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_NC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
+      CALL update_u_NC(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK, boundary)
       !SECOND STEP
-      CALL update_u_NC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux,KK)
+      CALL update_u_NC(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux,KK, boundary)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -211,19 +224,25 @@ subroutine Entropy_NonConservative(time_scheme, Extra_Viscosity, uu, N, Tend, dx
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_NonConservative
 
-subroutine update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
+subroutine update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK, boundary)
     REAL(kind = dp)           :: epsilon, dx, dt
-    REAL(kind = dp)           :: uu(:), uold(:)
-    INTEGER                   :: N, j
+    REAL(kind = dp)           :: flag,uu(:), uold(:)
+    INTEGER                   :: N, j, boundary
     REAL(kind = dp)           :: uleft, uright
     LOGICAL                   :: Extra_Viscosity
     REAL(kind = dp), external :: Flux, KK
 
-    ! Ghost Cells
-    uleft = uold(1); uright = uold(N)
+    ! Apply boundary conditions
+    if (boundary==ZERO_FLUX) THEN
+      uleft = uold(1); uright = uold(N)
+      flag = 0.0
+    ELSE
+      uleft = uold(N); uright = uold(1)
+      flag = 1.0
+    end if
 
     j = 1
-    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-Flux(uleft, uold(j))) +&
+    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uold(j+1))-flag*Flux(uleft, uold(j))) +&
     dt/dx**2*(KK(uold(j),uold(j+1))*(uold(j+1)-uold(j)) - KK(uleft,uold(j))*(uold(j)-uleft)) +&
     epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uleft,0.0_dp,Extra_Viscosity)
     DO j = 2,(N-1)
@@ -232,7 +251,7 @@ subroutine update_u_NC(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK)
       epsilon*dt/dx**2*merge(uold(j+1)-2*uold(j)+uold(j-1),0._dp,Extra_Viscosity)
     END DO
     j = N
-    uu(j) = uold(j) - dt/dx * (Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
+    uu(j) = uold(j) - dt/dx * (flag*Flux(uold(j), uright)-Flux(uold(j-1), uold(j))) +&
     dt/dx**2*(KK(uold(j),uright)*(uright-uold(j)) - KK(uold(j-1),uold(j))*(uold(j)-uold(j-1)))+&
     epsilon*dt/dx**2*merge(uright-2*uold(j)+uold(j-1),0.0_dp,Extra_Viscosity)
 end subroutine update_u_NC

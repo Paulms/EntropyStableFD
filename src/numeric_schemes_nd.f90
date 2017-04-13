@@ -11,8 +11,8 @@ IMPLICIT NONE
 CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!11 Entropy Stable Scheme, non conservative Diffusion
-subroutine Entropy_NonConservative_nd(time_scheme, Extra_Viscosity, uu, N, eqs, Tend, dx, CFL, Flux, KK, cdt, epsilon)
-  INTEGER                   :: time_scheme
+subroutine Entropy_NonConservative_nd(time_scheme, Extra_Viscosity, uu, N, eqs, Tend, dx, CFL, Flux, KK, cdt, epsilon, boundary)
+  INTEGER                   :: time_scheme, boundary
   INTEGER                   :: N, percentage,eqs
   REAL(kind = dp)           :: dx, dt, limit, CFL, Tend
   REAL(kind = dp)           :: uu(:,:), tt
@@ -48,13 +48,13 @@ subroutine Entropy_NonConservative_nd(time_scheme, Extra_Viscosity, uu, N, eqs, 
     CALL cdt(uold, CFL, dx, dt)
     !Scheme with forward Euler
     IF (time_scheme == FORWARD_EULER) THEN
-      CALL update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs)
+      CALL update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs, boundary)
       !Scheme with TVD_RK2
     ELSE IF (time_scheme == TVD_RK2) THEN
       !FIRST STEP
-      CALL update_u_NC_nd(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs)
+      CALL update_u_NC_nd(utemp, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs, boundary)
       !SECOND STEP
-      CALL update_u_NC_nd(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux,KK,eqs)
+      CALL update_u_NC_nd(utemp2, utemp, N, dx, dt, Extra_Viscosity, epsilon, Flux,KK,eqs, boundary)
       uu = 0.5*(uold + utemp2)
     END IF
     !Print progress
@@ -69,11 +69,11 @@ subroutine Entropy_NonConservative_nd(time_scheme, Extra_Viscosity, uu, N, eqs, 
   DEALLOCATE(uold, utemp, utemp2)
 end subroutine Entropy_NonConservative_nd
 
-subroutine update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs)
+subroutine update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, KK,eqs, boundary)
     REAL(kind = dp)               :: epsilon, dx, dt
-    REAL(kind = dp)               :: uu(:,:), uold(:,:)
+    REAL(kind = dp)               :: flag, uu(:,:), uold(:,:)
     REAL(kind = dp), ALLOCATABLE  :: kl(:,:), kr(:,:)
-    INTEGER                       :: N, j,eqs
+    INTEGER                       :: N, j,eqs,boundary
     REAL(kind = dp), ALLOCATABLE  :: uleft(:), uright(:)
     LOGICAL                       :: Extra_Viscosity
 
@@ -96,12 +96,18 @@ subroutine update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, K
     ! Ghost Cells
     ALLOCATE(uleft(eqs), uright(eqs), kl(eqs,eqs), kr(eqs,eqs))
     uleft = 0.0_dp; uright = 0.0_dp; kl = 0.0_dp; kr = 0.0_dp
-    uleft = uold(1,:); uright = uold(N,:)
-
+    ! Apply boundary conditions
+    if (boundary==ZERO_FLUX) THEN
+      uleft = uold(1,:); uright = uold(N,:)
+      flag = 0.0
+    ELSE
+      uleft = uold(N,:); uright = uold(1,:)
+      flag = 1.0
+    end if
     j = 1
     kl = KK(uleft,uold(j,:))
     kr = KK(uold(j,:),uold(j+1,:))
-    uu(j,:) = uold(j,:) - dt/dx*(Flux(uold(j,:), uold(j+1,:))-Flux(uleft, uold(j,:))) +&
+    uu(j,:) = uold(j,:) - dt/dx*(Flux(uold(j,:), uold(j+1,:))-flag*Flux(uleft, uold(j,:))) +&
     dt/dx**2*(MATMUL(kr,(uold(j+1,:)-uold(j,:))) - MATMUL(kl,(uold(j,:)-uleft))) +&
     epsilon*dt/dx**2*merge(uold(j+1,:)-2*uold(j,:)+uleft,0.0_dp,Extra_Viscosity)
     DO j = 2,(N-1)
@@ -114,7 +120,7 @@ subroutine update_u_NC_nd(uu, uold, N, dx, dt, Extra_Viscosity, epsilon, Flux, K
     j = N
     kl = KK(uold(j-1,:),uold(j,:))
     kr = KK(uold(j,:),uright)
-    uu(j,:) = uold(j,:) - dt/dx*(Flux(uold(j,:), uright)-Flux(uold(j-1,:), uold(j,:))) +&
+    uu(j,:) = uold(j,:) - dt/dx*(flag*Flux(uold(j,:), uright)-Flux(uold(j-1,:), uold(j,:))) +&
     dt/dx**2*(MATMUL(kr,(uright-uold(j,:))) - MATMUL(kl,(uold(j,:)-uold(j-1,:))))+&
     epsilon*dt/dx**2*merge(uright-2*uold(j,:)+uold(j-1,:),0.0_dp,Extra_Viscosity)
     DEALLOCATE(uleft, uright, kl, kr)

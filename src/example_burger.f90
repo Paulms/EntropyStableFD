@@ -48,7 +48,7 @@ subroutine burger_runexample(initial_condition, run_ref, run_err)
     ALLOCATE(results(N, ntests+1), names(ntests+1))
     names = ['x       ', 'REF     ']
     results(:,1) = xx
-    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC
+    CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC
     results(:,2) = uu
     CALL save_matrix(results, names, name, 0)
     DEALLOCATE(results, uu, names, uinit, xx)
@@ -81,23 +81,23 @@ subroutine burger_runexample(initial_condition, run_ref, run_err)
       N = steps(i)
       print *, "Starting numerical tests with N = ", N
       CALL setup_problem(dx, N, xx, uu, uinit, initial_condition)
-      CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
+      CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt, ZERO_FLUX)  !MS
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(2,i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC
+      CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(3,i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp) !ESNC
+      CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp, ZERO_FLUX) !ESNC
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(4,i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC2
+      CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC2
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(5,i) = error
       uu = uinit; error = 0.0_dp
-      CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp) !ESNC2
+      CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp, ZERO_FLUX) !ESNC2
       error = cumpute_errors(reference(:,2), M, uu, N)
       results(6,i) = error
       DEALLOCATE(uu, uinit, xx)
@@ -119,19 +119,19 @@ subroutine burger_runexample(initial_condition, run_ref, run_err)
   ALLOCATE(results(N, ntests+1), names(ntests+1))
   names = ['X       ', 'MS      ', 'ESC     ', 'ESNC    ', 'ESC2    ','ESNC2   ']
   results(:,1) = xx
-  CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt)  !MS
+  CALL Engquist_Osher(FORWARD_EULER, uu, N, Tend, dx, CFL, flux, DiffMat, Cdt, ZERO_FLUX)  !MS
   results(:,2) = uu
   uu = uinit
-  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC
+  CALL Entropy_Conservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC
   results(:,3) = uu
   uu = uinit
-  CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp) !ESNC
+  CALL Entropy_NonConservative(FORWARD_EULER, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp, ZERO_FLUX) !ESNC
   results(:,4) = uu
   uu = uinit
-  CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp) !ESC2
+  CALL Entropy_Conservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, DiffMat, Cdt, 0.0_dp, ZERO_FLUX) !ESC2
   results(:,5) = uu
   uu = uinit
-  CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp) !ESNC2
+  CALL Entropy_NonConservative(TVD_RK2, .FALSE., uu, N, Tend, dx, CFL, fluxEC, KKN, Cdt, 0.0_dp, ZERO_FLUX) !ESNC2
   results(:,6) = uu
   CALL save_matrix(results, names, name,0)
   !CALL plot_results(uu, uinit, xx, name)
